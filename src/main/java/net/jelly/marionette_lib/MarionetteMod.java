@@ -70,18 +70,4 @@ public class MarionetteMod
     public void onServerStarting(ServerStartingEvent event)
     {
     }
-
-    // You can use EventBusSubscriber to automatically register all static methods in the class annotated with @SubscribeEvent
-    @Mod.EventBusSubscriber(modid = MODID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
-    public static class ClientModEvents
-    {
-        @SubscribeEvent
-        public static void onClientSetup(FMLClientSetupEvent event)
-        {
-            // register entity renderers
-            EntityRenderers.register(ModEntities.WORM.get(), WormRenderer::new);
-            EntityRenderers.register(ModEntities.OCTOPUS.get(), OctopusRenderer::new);
-            EntityRenderers.register(ModEntities.WYVERN.get(), WyvernRenderer::new);
-        }
-    }
 }

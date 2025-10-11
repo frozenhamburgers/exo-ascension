@@ -11,6 +11,7 @@ import net.jelly.marionette_lib.entity.examples.worm.WormModel;
 import net.jelly.marionette_lib.entity.examples.worm.WormRenderer;
 import net.jelly.marionette_lib.entity.examples.wyvern.WyvernModel;
 import net.jelly.marionette_lib.entity.examples.wyvern.WyvernRenderer;
+
 import net.jelly.marionette_lib.global.RedstoneIndexData;
 import net.jelly.marionette_lib.post_processing.RedTintFx;
 import net.jelly.marionette_lib.post_processing.RedTintProcessor;
@@ -116,7 +117,6 @@ public class ClientEvents {
                 // update redstone index on client
                 RedstoneIndexData indexData = RedstoneIndexData.get(event.level.getServer().getLevel(Level.OVERWORLD));
                 clientRedstoneIndex = indexData.get();
-                System.out.println(indexData.get());
             }
 
         }
@@ -160,18 +160,6 @@ public class ClientEvents {
             // register lodestone post shaders
             PostProcessHandler.addInstance(RedTintProcessor.INSTANCE);
         }
-
-        @SubscribeEvent
-        public static void registerRenderers(FMLClientSetupEvent event) {
-        }
-
-        @SubscribeEvent
-        public static void registerLayer(EntityRenderersEvent.RegisterLayerDefinitions event) {
-            event.registerLayerDefinition(WormRenderer.WORM_LAYER, WormModel::createBodyLayer);
-            event.registerLayerDefinition(OctopusRenderer.OCTOPUS_LAYER, OctopusModel::createBodyLayer);
-            event.registerLayerDefinition(WyvernRenderer.WYVERN_LAYER, WyvernModel::createBodyLayer);
-        }
-
     }
 }
 
