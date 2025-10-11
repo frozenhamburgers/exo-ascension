@@ -4,6 +4,7 @@ import net.jelly.marionette_lib.MarionetteMod;
 import net.jelly.marionette_lib.global.RedstoneIndexData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.level.BlockEvent;
@@ -37,7 +38,9 @@ public class ForgeEventHandler {
         System.out.println(event.getPlacedBlock().getBlock() + " is " + RedstoneIndexData.isTechBlock(event.getPlacedBlock().getBlock()));
         if(RedstoneIndexData.isTechBlock(event.getPlacedBlock().getBlock()))
             RedstoneIndexData.get(event.getLevel().getServer().getLevel(Level.OVERWORLD)).add(1);
-        System.out.println(index);
+        else if (event.getPlacedBlock().is(Blocks.SLIME_BLOCK))
+            RedstoneIndexData.get(event.getLevel().getServer().getLevel(Level.OVERWORLD)).set(0);
+        System.out.println(indexData.get());
     }
 
 }

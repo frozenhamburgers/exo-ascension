@@ -26,6 +26,20 @@ vec3 randomDir(float seed) {
     return vec3(r * cos(theta), u, r * sin(theta));
 }
 
+// skewd random directions to be downward more often
+vec3 randomDownDir(float seed) {
+    // Random latitude and longitude
+    float u = hash(seed) * 2.0 - 1.0;
+
+    // Bias 'u' downward (negative = below horizon)
+    u = mix(u, -abs(u), 0.65); // 0=no bias, 1=fully downward; tweak 0.5–0.8 range
+
+    float theta = hash(seed + 1.0) * TWO_PI;
+    float r = sqrt(max(0.0, 1.0 - u * u));
+    return vec3(r * cos(theta), u, r * sin(theta));
+}
+
+
 // Compute meteor streak contribution with a hard core + tail
 // dir: unit world direction of this fragment
 // origin: unit start direction for the meteor
@@ -92,45 +106,45 @@ float meteorTrailAngular(vec3 dir, vec3 origin, vec3 motion, float t, float leng
 // lengthAng: angular half-length in radians (e.g. radians(24.0))
 // widthAng: angular half-width in radians (e.g. radians(0.6))
 // speed: controls temporal frequency
-float computeMeteorsSharp(vec3 dir, float time, float density, float brightnessMult, float lengthAng, float widthAng, float speed) {
+float computeMeteorsSharp(vec3 dir, float time, float density, float brightnessMult,
+float lengthAng, float widthAng, float speed) {
     float acc = 0.0;
     const int MAX_METEORS = 6;
     int activeCount = 1 + int(floor(float(MAX_METEORS - 1) * clamp(density, 0.0, 1.0)));
 
-    // Visible life window per meteor (fraction of its cycle)
-    float lifeWindow = 0.30; // visible length (0.30 = 30% of cycle). Tweak to taste.
-
-    // spacing and period control
-    float phaseSpacing = 6.3; // spread meteors in time by index
+    float lifeWindow = 0.30;   // visible portion of each cycle
+    float phaseSpacing = 6.3;  // time offset between meteors
     float cycleSpeed = max(1e-5, speed);
 
     for (int i = 0; i < MAX_METEORS; ++i) {
         if (i >= activeCount) break;
 
-        // cycle variable: increases with global time and per-index offset
+        // Continuous time per meteor
         float cycle = time * cycleSpeed + float(i) * phaseSpacing;
 
-        float localT = fract(cycle);      // 0..1 within this meteor's cycle
-        if (localT > lifeWindow) continue; // only active during lifeWindow of the cycle
+        // Fractional local time in current cycle
+        float localT = fract(cycle);
+        if (localT > lifeWindow) continue;
 
-        // normalize life to 0..1 over the visible window
         float tnorm = localT / max(1e-6, lifeWindow);
 
-        // deterministic seed based on whole-cycle index
-        float seedIndex = floor(cycle);
-        float seed = seedIndex * 23.0 + float(i) * 13.0;
+        // --- FIX: use stable seed per index ---
+        // deterministic seed based on meteor index + global time noise
+        float baseSeed = float(i) * 37.0 + 19.0;
+        float timeSeed = floor(time * speed * 0.25 + baseSeed); // slower change rate
+        float seed = baseSeed + timeSeed * 17.0;
 
         vec3 start = randomDir(seed);
-        vec3 motion = randomDir(seed + 101.0);
+        vec3 motion = randomDownDir(seed + 17.0);
 
-        // length jitter
+        // length jitter stays deterministic per meteor
         float len = lengthAng * (0.75 + 0.5 * hash(seed + 3.0));
 
-        // compute raw trail brightness for this meteor
+        // compute raw trail brightness
         float raw = meteorTrailAngular(dir, start, motion, tnorm, len, widthAng);
 
-        // life shaping: linger at full length then fade entire streak
-        float activePhase = 0.70; // fraction of tnorm where it's fully visible
+        // life shaping: linger and fade smoothly
+        float activePhase = 0.70;
         float fadePhase = 1.0 - activePhase;
         float lifeMultiplier = (tnorm <= activePhase)
         ? 1.0
@@ -141,6 +155,7 @@ float computeMeteorsSharp(vec3 dir, float time, float density, float brightnessM
 
     return acc * brightnessMult;
 }
+
 
 
 

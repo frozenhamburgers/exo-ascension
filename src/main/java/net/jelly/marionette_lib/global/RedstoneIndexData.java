@@ -25,6 +25,11 @@ public class RedstoneIndexData extends SavedData {
         setDirty();
     }
 
+    public void set(int value) {
+        redstoneIndex = value;
+        setDirty();
+    }
+
     public void subtract(int value) {
         redstoneIndex = Math.max(0, redstoneIndex - value);
         setDirty();

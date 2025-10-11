@@ -11,9 +11,11 @@ import net.jelly.marionette_lib.entity.examples.worm.WormModel;
 import net.jelly.marionette_lib.entity.examples.worm.WormRenderer;
 import net.jelly.marionette_lib.entity.examples.wyvern.WyvernModel;
 import net.jelly.marionette_lib.entity.examples.wyvern.WyvernRenderer;
+import net.jelly.marionette_lib.global.RedstoneIndexData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
@@ -21,6 +23,7 @@ import net.minecraftforge.client.event.RegisterShadersEvent;
 import net.minecraftforge.client.event.RenderLevelStageEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import org.joml.Vector3f;
@@ -35,6 +38,8 @@ public class ClientEvents {
     // FORGE CLIENT EVENTS
     @Mod.EventBusSubscriber(modid = MarionetteMod.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
     public static class ForgeClientEvents {
+        static int clientRedstoneIndex = 0;
+
         @SubscribeEvent
         public static void onRenderLevelStage(RenderLevelStageEvent event) {
             if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_SKY) return;
@@ -47,7 +52,7 @@ public class ClientEvents {
             float totalSeconds = (mc.level.getGameTime() + event.getPartialTick()) / 20.0f;
 
             // example intensity (compute this from your game logic)
-            float redHourIntensity = 1.0f;
+            float redHourIntensity = clientRedstoneIndex / 100f;
 
             // bind shader and set uniforms
             RenderSystem.setShader(() -> CUSTOM_SKY_SHADER);
@@ -71,7 +76,7 @@ public class ClientEvents {
             RenderSystem.setShader(() -> METEORS_SHADER);
             AbstractUniform u;
             if ((u = METEORS_SHADER.safeGetUniform("TotalTime")) != null) u.set(totalSeconds);
-            if ((u = METEORS_SHADER.safeGetUniform("MeteorDensity")) != null) u.set(200.0f);
+            if ((u = METEORS_SHADER.safeGetUniform("MeteorDensity")) != null) u.set(20000.0f);
             if ((u = METEORS_SHADER.safeGetUniform("MeteorBrightness")) != null) u.set(1.0f);
             if ((u = METEORS_SHADER.safeGetUniform("MeteorLength")) != null) u.set(1.0f);
             if ((u = METEORS_SHADER.safeGetUniform("MeteorSpeed")) != null) u.set(0.6f);
@@ -92,6 +97,15 @@ public class ClientEvents {
 
         @SubscribeEvent
         public static void onRenderTick(TickEvent.RenderTickEvent event) {
+        }
+
+        @SubscribeEvent
+        public static void onLevelTIck(TickEvent.LevelTickEvent event) {
+            if(event.side == LogicalSide.SERVER) {
+                RedstoneIndexData indexData = RedstoneIndexData.get(event.level.getServer().getLevel(Level.OVERWORLD));
+                clientRedstoneIndex = indexData.get();
+                System.out.println(indexData.get());
+            }
         }
 
     }
