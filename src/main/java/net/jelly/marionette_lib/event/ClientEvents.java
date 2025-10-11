@@ -71,10 +71,10 @@ public class ClientEvents {
             RenderSystem.setShader(() -> METEORS_SHADER);
             AbstractUniform u;
             if ((u = METEORS_SHADER.safeGetUniform("TotalTime")) != null) u.set(totalSeconds);
-            if ((u = METEORS_SHADER.safeGetUniform("MeteorDensity")) != null) u.set(10.0f);
-            if ((u = METEORS_SHADER.safeGetUniform("MeteorBrightness")) != null) u.set(0.2f);
+            if ((u = METEORS_SHADER.safeGetUniform("MeteorDensity")) != null) u.set(200.0f);
+            if ((u = METEORS_SHADER.safeGetUniform("MeteorBrightness")) != null) u.set(1.0f);
             if ((u = METEORS_SHADER.safeGetUniform("MeteorLength")) != null) u.set(1.0f);
-            if ((u = METEORS_SHADER.safeGetUniform("MeteorSpeed")) != null) u.set(0.25f);
+            if ((u = METEORS_SHADER.safeGetUniform("MeteorSpeed")) != null) u.set(0.6f);
             if ((u = METEORS_SHADER.safeGetUniform("MeteorColor")) != null) u.set(new Vector3f(1.0f, 0.8f, 0.6f));
 //            RenderSystem.defaultBlendFunc();
             RenderSystem.blendFunc(GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE);
