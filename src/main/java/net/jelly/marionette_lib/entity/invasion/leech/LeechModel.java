@@ -1,11 +1,11 @@
-package net.jelly.marionette_lib.entity.examples.wyvern;
+package net.jelly.marionette_lib.entity.invasion.leech;
 
 import net.jelly.marionette_lib.utility.MultipartModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
 
-public class WyvernModel extends MultipartModel<WyvernEntity> {
+public class LeechModel extends MultipartModel<LeechEntity> {
 
     public static LayerDefinition createBodyLayer() {
         MeshDefinition meshdefinition = new MeshDefinition();
@@ -50,7 +50,7 @@ public class WyvernModel extends MultipartModel<WyvernEntity> {
         return LayerDefinition.create(meshdefinition, 128, 128);
     }
 
-    public WyvernModel(ModelPart root) {
+    public LeechModel(ModelPart root) {
         // segment names. names of the folders containing the geometry of each animatable segment in blockbench
         super(root, new String[]
                 {"bone", "bone2", "bone3", "bone4", "bone5", "bone6", "bone7", "bone8", "bone9", "bone10",

@@ -1,4 +1,4 @@
-package net.jelly.marionette_lib.entity.examples.wyvern;
+package net.jelly.marionette_lib.entity.invasion.leech;
 
 import net.jelly.marionette_lib.networking.ModMessages;
 import net.jelly.marionette_lib.networking.MultipartEntityMessage;
@@ -12,10 +12,10 @@ import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
 
-public class WyvernLegPartEntity extends AbstractPartEntity<WyvernPartEntity> {
+public class LeechLegPartEntity extends AbstractPartEntity<LeechPartEntity> {
     private EntityDimensions size;
 
-    public WyvernLegPartEntity(WyvernPartEntity parent, float sizeXZ, float sizeY, float length) {
+    public LeechLegPartEntity(LeechPartEntity parent, float sizeXZ, float sizeY, float length) {
         super(parent);
         this.size = EntityDimensions.fixed(sizeXZ, sizeY);
         this.refreshDimensions();
@@ -28,6 +28,11 @@ public class WyvernLegPartEntity extends AbstractPartEntity<WyvernPartEntity> {
 
     public AABB getBoundingBoxForCulling() {
         return this.getBoundingBox().inflate(1.0D, 1.0D, 1.0D);
+    }
+
+    @Override
+    public boolean canBeHitByProjectile() {
+        return true;
     }
 
     @Override

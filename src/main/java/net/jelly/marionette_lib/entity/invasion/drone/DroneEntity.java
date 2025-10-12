@@ -62,7 +62,7 @@ public class DroneEntity extends FlyingMob {
         }
     }
 
-    class DroneLookControl extends LookControl {
+    public static class DroneLookControl extends LookControl {
         public DroneLookControl(Mob pMob) {
             super(pMob);
         }

@@ -18,7 +18,7 @@ public class DroneAttackGoal extends Goal {
     private int timer = 0;
     private static final double MIN_HEIGHT = 2.0;
     private static final double RISE_SPEED = 0.1;
-    private static final ParticleEmitterInfo LASER_PARTICLE = new ParticleEmitterInfo(new ResourceLocation(MarionetteMod.MODID, "blue_laser"));
+    private static final ParticleEmitterInfo LASER_PARTICLE = new ParticleEmitterInfo(new ResourceLocation(MarionetteMod.MODID, "laser/blue_laser"));
     ParticleEmitterInfo laser;
 
 
@@ -34,15 +34,12 @@ public class DroneAttackGoal extends Goal {
 
     @Override
     public void start() {
-        System.out.println("spawning particle:" + mob.level().isClientSide);
         laser = LASER_PARTICLE.clone()
                 .bindOnEntity(mob)
-                .entitySpaceRelativePosition(new Vec3(0,0,100000))
                 .useEntityHeadSpace()
                 .scale(0.2f);
         AAALevel.addParticle(mob.level(), false, laser);
         timer = 0;
-        System.out.println(laser.isEntitySpaceRelativePosSet());
     }
 
     @Override

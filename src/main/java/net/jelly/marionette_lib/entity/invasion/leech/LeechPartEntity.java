@@ -1,4 +1,4 @@
-package net.jelly.marionette_lib.entity.examples.wyvern;
+package net.jelly.marionette_lib.entity.invasion.leech;
 
 import net.jelly.marionette_lib.networking.ModMessages;
 import net.jelly.marionette_lib.networking.MultipartEntityMessage;
@@ -18,23 +18,23 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 
-public class WyvernPartEntity extends AbstractPartEntity<WyvernEntity> implements ProceduralAnimatable {
+public class LeechPartEntity extends AbstractPartEntity<LeechEntity> implements ProceduralAnimatable {
     private EntityDimensions size;
-    private final WyvernLegPartEntity[] allParts;
+    private final LeechLegPartEntity[] allParts;
     FabrikAnimator animator;
 
-    public WyvernPartEntity(WyvernEntity parent, float sizeXZ, float sizeY, float length) {
+    public LeechPartEntity(LeechEntity parent, float sizeXZ, float sizeY, float length) {
         super(parent);
         this.size = EntityDimensions.fixed(sizeXZ, sizeY);
         this.refreshDimensions();
         this.length = length;
 
-        WyvernLegPartEntity tail1Part = new WyvernLegPartEntity(this, 1F, 1F, 0.5f);
-        WyvernLegPartEntity tail2Part = new WyvernLegPartEntity(this, 1F, 1F, 0.5f);
-        WyvernLegPartEntity tail3Part = new WyvernLegPartEntity(this, 1F, 1F, 0.5f);
-        WyvernLegPartEntity tail4Part = new WyvernLegPartEntity(this, 1F, 1F, 0.5f);
-        WyvernLegPartEntity tail5Part = new WyvernLegPartEntity(this, 1F, 1F, 0.5f);
-        allParts = new WyvernLegPartEntity[]{tail1Part, tail2Part, tail3Part, tail4Part, tail5Part};
+        LeechLegPartEntity tail1Part = new LeechLegPartEntity(this, 1F, 1F, 0.5f);
+        LeechLegPartEntity tail2Part = new LeechLegPartEntity(this, 1F, 1F, 0.5f);
+        LeechLegPartEntity tail3Part = new LeechLegPartEntity(this, 1F, 1F, 0.5f);
+        LeechLegPartEntity tail4Part = new LeechLegPartEntity(this, 1F, 1F, 0.5f);
+        LeechLegPartEntity tail5Part = new LeechLegPartEntity(this, 1F, 1F, 0.5f);
+        allParts = new LeechLegPartEntity[]{tail1Part, tail2Part, tail3Part, tail4Part, tail5Part};
         animator = new FabrikAnimator(this, allParts);
     }
 
@@ -51,6 +51,11 @@ public class WyvernPartEntity extends AbstractPartEntity<WyvernEntity> implement
 
     public AABB getBoundingBoxForCulling() {
         return this.getBoundingBox().inflate(1.0D, 1.0D, 1.0D);
+    }
+
+    @Override
+    public boolean canBeHitByProjectile() {
+        return true;
     }
 
     @Override

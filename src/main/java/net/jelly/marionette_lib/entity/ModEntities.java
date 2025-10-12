@@ -7,9 +7,12 @@ import net.jelly.marionette_lib.entity.examples.octopus.OctopusRenderer;
 import net.jelly.marionette_lib.entity.examples.worm.WormEntity;
 import net.jelly.marionette_lib.entity.examples.worm.WormModel;
 import net.jelly.marionette_lib.entity.examples.worm.WormRenderer;
-import net.jelly.marionette_lib.entity.examples.wyvern.WyvernEntity;
-import net.jelly.marionette_lib.entity.examples.wyvern.WyvernModel;
-import net.jelly.marionette_lib.entity.examples.wyvern.WyvernRenderer;
+import net.jelly.marionette_lib.entity.invasion.grappler.GrapplerEntity;
+import net.jelly.marionette_lib.entity.invasion.grappler.GrapplerModel;
+import net.jelly.marionette_lib.entity.invasion.grappler.GrapplerRenderer;
+import net.jelly.marionette_lib.entity.invasion.leech.LeechEntity;
+import net.jelly.marionette_lib.entity.invasion.leech.LeechModel;
+import net.jelly.marionette_lib.entity.invasion.leech.LeechRenderer;
 import net.jelly.marionette_lib.entity.invasion.drone.DroneEntity;
 import net.jelly.marionette_lib.entity.invasion.drone.DroneModel;
 import net.jelly.marionette_lib.entity.invasion.drone.DroneRenderer;
@@ -43,16 +46,22 @@ public class ModEntities {
                     .build("octopus")
     );
 
-    public static final RegistryObject<EntityType<WyvernEntity>> WYVERN = ENTITY_TYPES.register("wyvern", () ->
-            EntityType.Builder.of(WyvernEntity::new, MobCategory.MISC)
-                    .sized(1.0f,1.0f)
-                    .build("wyvern")
-    );
-
     public static final RegistryObject<EntityType<DroneEntity>> DRONE = ENTITY_TYPES.register("drone", () ->
             EntityType.Builder.of(DroneEntity::new, MobCategory.MISC)
                     .sized(1.0f,1.0f)
                     .build("drone")
+    );
+
+    public static final RegistryObject<EntityType<LeechEntity>> LEECH = ENTITY_TYPES.register("leech", () ->
+            EntityType.Builder.of(LeechEntity::new, MobCategory.MISC)
+                    .sized(1.0f,1.0f)
+                    .build("leech")
+    );
+
+    public static final RegistryObject<EntityType<GrapplerEntity>> GRAPPLER = ENTITY_TYPES.register("grappler", () ->
+            EntityType.Builder.of(GrapplerEntity::new, MobCategory.MISC)
+                    .sized(1.0f,1.0f)
+                    .build("grappler")
     );
 
     public static void register(IEventBus eventBus) {
@@ -68,15 +77,19 @@ public class ModEntities {
             // register entity renderers
             EntityRenderers.register(ModEntities.WORM.get(), WormRenderer::new);
             EntityRenderers.register(ModEntities.OCTOPUS.get(), OctopusRenderer::new);
-            EntityRenderers.register(ModEntities.WYVERN.get(), WyvernRenderer::new);
+
             EntityRenderers.register(ModEntities.DRONE.get(), DroneRenderer::new);
+            EntityRenderers.register(ModEntities.LEECH.get(), LeechRenderer::new);
+            EntityRenderers.register(ModEntities.GRAPPLER.get(), GrapplerRenderer::new);
         }
         @SubscribeEvent
         public static void registerLayer(EntityRenderersEvent.RegisterLayerDefinitions event) {
             event.registerLayerDefinition(WormRenderer.WORM_LAYER, WormModel::createBodyLayer);
             event.registerLayerDefinition(OctopusRenderer.OCTOPUS_LAYER, OctopusModel::createBodyLayer);
-            event.registerLayerDefinition(WyvernRenderer.WYVERN_LAYER, WyvernModel::createBodyLayer);
+
             event.registerLayerDefinition(DroneRenderer.DRONE_LAYER, DroneModel::createBodyLayer);
+            event.registerLayerDefinition(LeechRenderer.LEECH_LAYER, LeechModel::createBodyLayer);
+            event.registerLayerDefinition(GrapplerRenderer.GRAPPLER_LAYER, GrapplerModel::createBodyLayer);
         }
     }
 
@@ -86,8 +99,10 @@ public class ModEntities {
         public static void registerAttributes(EntityAttributeCreationEvent event) {
             event.put(ModEntities.WORM.get(), WormEntity.createAttributes().build());
             event.put(ModEntities.OCTOPUS.get(), OctopusEntity.createAttributes().build());
-            event.put(ModEntities.WYVERN.get(), WyvernEntity.createAttributes().build());
+
             event.put(ModEntities.DRONE.get(), DroneEntity.createAttributes().build());
+            event.put(ModEntities.LEECH.get(), LeechEntity.createAttributes().build());
+            event.put(ModEntities.GRAPPLER.get(), GrapplerEntity.createAttributes().build());
         }
 
     }
