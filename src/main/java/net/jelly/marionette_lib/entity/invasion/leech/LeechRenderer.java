@@ -19,7 +19,7 @@ public class LeechRenderer extends MobRenderer<LeechEntity, LeechModel> {
 
     @Override
     protected void setupRotations(LeechEntity pEntityLiving, PoseStack pPoseStack, float pAgeInTicks, float pRotationYaw, float pPartialTicks) {
-//        pPoseStack.mulPose(Axis.YP.rotationDegrees(180));
+        pPoseStack.mulPose(Axis.YP.rotationDegrees(180));
     }
 
     //    public boolean shouldRender(WormEntity entity, Frustum camera, double x, double y, double z) {

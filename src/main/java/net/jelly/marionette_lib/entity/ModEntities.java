@@ -60,7 +60,7 @@ public class ModEntities {
 
     public static final RegistryObject<EntityType<GrapplerEntity>> GRAPPLER = ENTITY_TYPES.register("grappler", () ->
             EntityType.Builder.of(GrapplerEntity::new, MobCategory.MISC)
-                    .sized(1.0f,1.0f)
+                    .sized(1.0f,2.0f)
                     .build("grappler")
     );
 

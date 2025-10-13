@@ -54,25 +54,35 @@ public class LeechPartEntity extends AbstractPartEntity<LeechEntity> implements 
     }
 
     @Override
-    public boolean canBeHitByProjectile() {
+    public boolean fireImmune() {
         return true;
     }
 
     @Override
-    public boolean fireImmune() {
+    public boolean canBeHitByProjectile() {
+        return true;
+    }
+    @Override
+    public boolean isPickable() {
+        return true;
+    }
+
+    @Override
+    public boolean canBeCollidedWith() {
         return true;
     }
 
     @Override
     public boolean hurt(DamageSource source, float amount) {
         Entity parent = this.getParent();
-        if (!this.isInvulnerableTo(source) && parent != null) {
+        if (parent != null) {
             Entity player = source.getEntity();
             if (player != null && player.level().isClientSide) {
                 ModMessages.sendToServer(new MultipartEntityMessage(parent.getId(), player.getId(), 1, amount));
             }
+            else parent.hurt(source, amount);
         }
-        return false;
+        return true;
     }
 
     @Override

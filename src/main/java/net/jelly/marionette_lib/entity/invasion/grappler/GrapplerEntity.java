@@ -3,7 +3,6 @@ package net.jelly.marionette_lib.entity.invasion.grappler;
 import net.jelly.marionette_lib.entity.goals.MoveTowardTargetGoal;
 import net.jelly.marionette_lib.entity.goals.HoverGoal;
 import net.jelly.marionette_lib.entity.goals.IHoverEntity;
-import net.jelly.marionette_lib.entity.goals.grappler.GrapplerPunchGoal;
 import net.jelly.marionette_lib.entity.invasion.drone.DroneEntity;
 import net.jelly.marionette_lib.utility.FabrikAnimator;
 import net.jelly.marionette_lib.utility.ProceduralAnimatable;
@@ -18,6 +17,7 @@ import net.minecraft.world.entity.FlyingMob;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.animal.Animal;
@@ -33,19 +33,16 @@ import java.util.ArrayList;
 public class GrapplerEntity extends FlyingMob implements ProceduralAnimatable, IHoverEntity {
     private final GrapplerPartEntity[] allParts;
     FabrikAnimator[] legAnimators = new FabrikAnimator[2];
-    int attackTicks = 0;
-    int attackDuration = 15;
-    private static final EntityDataAccessor<Integer> PHASE = SynchedEntityData.defineId(GrapplerEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Vector3f> TARGET_POS = SynchedEntityData.defineId(GrapplerEntity.class, EntityDataSerializers.VECTOR3);
 
     public GrapplerEntity(EntityType entityType, Level level) {
         super(entityType, level);
         GrapplerPartEntity arm11 = new GrapplerPartEntity(this, 16f/16, 16f/16, 20f/16);
-        GrapplerPartEntity arm12 = new GrapplerPartEntity(this, 16f/16, 16f/16, 20f/16);
-        GrapplerPartEntity arm13 = new GrapplerPartEntity(this, 16f/16, 16f/16, 10f/16);
+        GrapplerPartEntity arm12 = new GrapplerPartEntity(this, 12f/16, 12f/16, 20f/16);
+        GrapplerPartEntity arm13 = new GrapplerPartEntity(this, 8f/16, 8f/16, 10f/16);
         GrapplerPartEntity arm21 = new GrapplerPartEntity(this, 16f/16, 16f/16, 20f/16);
-        GrapplerPartEntity arm22 = new GrapplerPartEntity(this, 16f/16, 16f/16, 20f/16);
-        GrapplerPartEntity arm23 = new GrapplerPartEntity(this, 16f/16, 16f/16, 10f/16);
+        GrapplerPartEntity arm22 = new GrapplerPartEntity(this, 12f/16, 12f/16, 20f/16);
+        GrapplerPartEntity arm23 = new GrapplerPartEntity(this, 8f/16, 8f/16, 10f/16);
         legAnimators[0] = new FabrikAnimator(this, new GrapplerPartEntity[]
                 {arm11, arm12, arm13});
         legAnimators[1] = new FabrikAnimator(this, new GrapplerPartEntity[]
@@ -57,9 +54,8 @@ public class GrapplerEntity extends FlyingMob implements ProceduralAnimatable, I
 
         // goals
         this.goalSelector.addGoal(0, new NearestAttackableTargetGoal<>(this, Player.class, false));
-        this.goalSelector.addGoal(1, new GrapplerPunchGoal(this));
         this.goalSelector.addGoal(2, new MoveTowardTargetGoal(this, 3, 0.85f, 0.065f));
-        this.goalSelector.addGoal(3, new HoverGoal(this, 1f, 0.1f));
+        this.goalSelector.addGoal(3, new HoverGoal(this, 1.5f, 0.1f, true, 5));
         this.goalSelector.addGoal(4, new RandomLookAroundGoal(this));
     }
 
@@ -89,30 +85,18 @@ public class GrapplerEntity extends FlyingMob implements ProceduralAnimatable, I
         }
     }
 
-    public AttackPhase getPhase() {
-        return AttackPhase.values()[this.entityData.get(PHASE)];
-    }
-
-    public void setPhase(AttackPhase phase) {
-        System.out.println("phase set from " + this.level().isClientSide + " to " + phase);
-        this.entityData.set(PHASE, phase.ordinal());
-    }
-
-    public static enum AttackPhase {
-        MOVE,
-        PUNCH
-    }
-
-    public void beginAttack(int attackDuration) {
-        this.attackDuration = attackDuration;
-    }
-
-    public void endAttack() {
-        this.attackTicks = 0;
-    }
-
     public void tick() {
         super.tick();
+
+        if(this.getGroundDistance() > 10) {
+            this.addDeltaMovement(new Vec3(0, -0.1f, 0));;
+        }
+
+        LivingEntity target = this.getTarget();
+        if(!this.level().isClientSide() && target != null) {
+            this.entityData.set(TARGET_POS, target.position().toVector3f());
+        }
+        Vec3 targetPos = new Vec3(this.entityData.get(TARGET_POS));
 
         for (int i=0; i<2; i++) {
             FabrikAnimator legAnimator = legAnimators[i];
@@ -125,7 +109,7 @@ public class GrapplerEntity extends FlyingMob implements ProceduralAnimatable, I
                     .add(new Vec3(0, 0.75, 0));
             legAnimator.setRoot(legRoot);
 
-            if(getPhase() == AttackPhase.MOVE) {
+            if(this.position().distanceTo(targetPos) > 3) {
                 double horizontalSpeed = (new Vec3(this.getDeltaMovement().x, 0, this.getDeltaMovement().z).length()); // "hang" arms while moving;
                 Vec3 legRest = this.position()
                         .add(direction.cross(new Vec3(0, 1, 0)).normalize().scale(1.25f * bodySide))
@@ -146,72 +130,30 @@ public class GrapplerEntity extends FlyingMob implements ProceduralAnimatable, I
                     );
                 }
             }
-            /* PUNCH ATTACK */
-            else if (getPhase() == AttackPhase.PUNCH && i == 0) {
-                // wow this code sucks
-                LivingEntity target = this.getTarget();
-                if(!this.level().isClientSide() && target != null) {
-                    this.entityData.set(TARGET_POS, target.position().toVector3f());
-                }
-                Vec3 targetPos = new Vec3(this.entityData.get(TARGET_POS));
-                if (targetPos == Vec3.ZERO) {
-                    if (!this.level().isClientSide()) setPhase(AttackPhase.MOVE);
-                    continue;
-                }
+            // Grab player visually
+            else {
+                // Extend arms visually toward target
+                Vec3 toTarget = targetPos.subtract(legRoot);
+                double dist = toTarget.length();
+                Vec3 dir = toTarget.normalize();
 
-                System.out.println(attackTicks);
+                // smoothly move the arm end toward the target
+                Vec3 desiredPos = legRoot.add(dir.scale(Math.min(dist, 3.5))); // cap reach distance
+                Vec3 currentEnd = legAnimator.chainEndPos();
 
-                // Track punch progress (0 → 1)
-                if (attackTicks > attackDuration) {
-                    if (!this.level().isClientSide()) setPhase(AttackPhase.MOVE);
-                    attackTicks = 0;
-                    continue;
-                }
-                attackTicks++;
+                // simple smoothing for visual stability
+                Vec3 smoothed = currentEnd.add(desiredPos.subtract(currentEnd).scale(0.25));
+                legAnimator.setFabrikTarget(smoothed);
 
-                double progress = (double) attackTicks / attackDuration;
-
-// --- Motion curve ---
-// 0.0–0.3  : wind-up (pull arm back)
-// 0.3–0.6  : thrust (attack forward)
-// 0.6–1.0  : retract
-                double curve;
-                if (progress < 0.3) {
-                    // Pull back smoothly
-                    double t = progress / 0.3;
-                    curve = -0.4 * Math.sin(t * Math.PI * 0.5); // ease-in pullback
-                } else if (progress < 0.6) {
-                    // Thrust fast, strong ease-out
-                    double t = (progress - 0.3) / 0.3;
-                    curve = Math.sin(t * Math.PI * 0.5); // fast acceleration forward
-                } else {
-                    // Retract arm back to rest
-                    double t = (progress - 0.6) / 0.4;
-                    curve = (1.0 - t) * 0.3; // smooth retract
+                // Server-side interaction: pull target slightly toward grappler
+                if (target != null && this.distanceTo(target) < 3) {
+                    System.out.println("PULL");
+                    Vec3 pullDir = this.position().subtract(target.position()).normalize();
+                    target.addDeltaMovement(pullDir.scale(0.08));
+                    target.hurtMarked = true;
+                    this.addDeltaMovement(pullDir.scale(0.04));
                 }
 
-                // --- Direction ---
-                Vec3 toTarget = targetPos.subtract(this.position());
-                Vec3 punchDir = toTarget.normalize();
-
-                // --- Reach ---
-                // Slight scaling so long targets extend a bit more, but not crazy
-                double targetDist = toTarget.length();
-                double reach = Mth.clamp(targetDist * 0.6, 1.0, 3.0);
-
-                // --- Arm endpoint ---
-                Vec3 base = legAnimator.chainEndPos(); // current arm base position
-                Vec3 armTargetPos = base.add(punchDir.scale(curve * reach));
-
-                legAnimator.setFabrikTarget(armTargetPos);
-
-
-                // Simple hit detection
-                if (attackTicks == (int)(attackDuration * 0.5)) { // midpoint impact
-                    if (targetPos.distanceTo(legAnimator.chainEndPos()) < 1.5) {
-                        if(target != null) target.hurt(this.damageSources().mobAttack(this), 6.0f);
-                    }
-                }
             }
 
         }
@@ -223,7 +165,7 @@ public class GrapplerEntity extends FlyingMob implements ProceduralAnimatable, I
         return Animal.createLivingAttributes()
                 .add(Attributes.MAX_HEALTH, 20D)
                 .add(Attributes.KNOCKBACK_RESISTANCE, 100)
-                .add(Attributes.FOLLOW_RANGE, 24D)
+                .add(Attributes.FOLLOW_RANGE, 80D)
                 .add(Attributes.MOVEMENT_SPEED, 0.25D)
                 .add(Attributes.ARMOR_TOUGHNESS, 0.1f)
                 .add(Attributes.ATTACK_KNOCKBACK, 0.5f)
@@ -232,7 +174,7 @@ public class GrapplerEntity extends FlyingMob implements ProceduralAnimatable, I
 
     @Override
     public boolean hurt(DamageSource pSource, float pAmount) {
-        System.out.println("ouch: " + pAmount);
+        System.out.println("ouch: " + pAmount + ", " + (this.level().isClientSide ? "client" : "server"));
         return super.hurt(pSource, pAmount);
     }
 
@@ -252,7 +194,6 @@ public class GrapplerEntity extends FlyingMob implements ProceduralAnimatable, I
     @Override
     protected void defineSynchedData() {
         super.defineSynchedData();
-        this.entityData.define(PHASE, 0);
         this.entityData.define(TARGET_POS, new Vector3f(0,0,0));
     }
 }

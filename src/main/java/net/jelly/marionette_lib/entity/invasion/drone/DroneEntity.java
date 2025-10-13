@@ -25,10 +25,10 @@ public class DroneEntity extends FlyingMob implements IHoverEntity {
         this.lookControl = new DroneLookControl(this);
 
         // Basic behaviors
-        this.goalSelector.addGoal(0, new NearestAttackableTargetGoal<>(this, Player.class, false));
+        this.targetSelector.addGoal(0, new NearestAttackableTargetGoal<>(this, Player.class, false));
         this.goalSelector.addGoal(1, new DroneAttackGoal(this));
         this.goalSelector.addGoal(2, new MoveTowardTargetGoal(this, 6f, 1.2f, 0.1f));
-        this.goalSelector.addGoal(3, new HoverGoal(this, 5f, 0.2f));
+        this.goalSelector.addGoal(3, new HoverGoal(this, 5f, 0.2f, true, 0));
         this.goalSelector.addGoal(4, new RandomLookAroundGoal(this));
     }
 

@@ -3,6 +3,7 @@ package net.jelly.marionette_lib.networking;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.network.NetworkEvent;
@@ -52,7 +53,11 @@ public class MultipartEntityMessage {
                         parent.interact(player, player.getUsedItemHand());
                     }
                 } else if (message.type == 1) {
-                    parent.hurt(parent.damageSources().generic(), (float) message.damage);
+                    if (interacter instanceof Player player && parent instanceof LivingEntity livingParent) {
+                        // simulate normal player attack
+                        player.attack(livingParent);
+                    }
+                    else parent.hurt(parent.damageSources().generic(), (float) message.damage);
                 }
             }
         });
