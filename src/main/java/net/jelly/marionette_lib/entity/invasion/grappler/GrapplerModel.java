@@ -2,10 +2,13 @@ package net.jelly.marionette_lib.entity.invasion.grappler;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Axis;
+import net.jelly.marionette_lib.utility.AbstractPartEntity;
 import net.jelly.marionette_lib.utility.MultipartModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
+import net.minecraft.world.phys.Vec3;
 
 public class GrapplerModel extends MultipartModel<GrapplerEntity> {
     private final ModelPart body;
@@ -56,10 +59,38 @@ public class GrapplerModel extends MultipartModel<GrapplerEntity> {
 
     @Override
     public void renderToBuffer(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+        body.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
         for(int i=0 ; i<allSegments.length; i++) {
             allSegments[i].render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
         }
-        body.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
+    }
+
+    @Override
+    public void setupAnim(GrapplerEntity entity, float pLimbSwing, float pLimbSwingAmount, float ageInTicks, float pNetHeadYaw, float pHeadPitch) {
+        float partialTicks = ageInTicks - entity.tickCount;
+
+        // procedural parts
+        AbstractPartEntity[] allParts = (AbstractPartEntity[])(entity.getParts());
+        for(int i=0 ; i<allSegments.length; i++) {
+            Vec3 dirVec = allParts[i].getPartDirection().normalize();
+
+            float yaw = (float)(Math.atan2(-dirVec.x, dirVec.z));
+            float pitch = (float)(Math.asin(dirVec.y));
+            allSegments[i].setRotation(-pitch, yaw, 0f);
+
+
+            Vec3 wormPos = entity.getPosition(partialTicks);
+            Vec3 partPos = allParts[i].getPosition(partialTicks);
+            double xOffset = partPos.x-wormPos.x;
+            double yOffset = partPos.y-wormPos.y;
+            double zOffset = partPos.z-wormPos.z;
+            // default position of each part is (0,24,0). See PartDefinition definitions above to see why
+            // 16 b/c 1 block is 16 units in model space
+            allSegments[i].setPos((float)(16f*xOffset), (float) (24-16f*(yOffset + allParts[i].getBbHeight()/2)),(float)(-16f*zOffset));
+        }
+
+        // body parts
+        body.setRotation(0f, (float)Math.toRadians(entity.yBodyRot), 0f);
     }
 
 }

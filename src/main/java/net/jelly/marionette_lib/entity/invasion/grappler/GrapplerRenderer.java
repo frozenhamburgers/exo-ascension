@@ -1,6 +1,9 @@
 package net.jelly.marionette_lib.entity.invasion.grappler;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
 import net.jelly.marionette_lib.MarionetteMod;
+import net.jelly.marionette_lib.entity.invasion.leech.LeechEntity;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.MobRenderer;
@@ -13,6 +16,11 @@ public class GrapplerRenderer extends MobRenderer<GrapplerEntity, GrapplerModel>
 
     public GrapplerRenderer(EntityRendererProvider.Context pContext) {
         super(pContext, new GrapplerModel(pContext.bakeLayer(GRAPPLER_LAYER)), 1.0f);
+    }
+
+    @Override
+    protected void setupRotations(GrapplerEntity pEntityLiving, PoseStack pPoseStack, float pAgeInTicks, float pRotationYaw, float pPartialTicks) {
+        pPoseStack.mulPose(Axis.YP.rotationDegrees(180));
     }
 
 //    public boolean shouldRender(WormEntity entity, Frustum camera, double x, double y, double z) {

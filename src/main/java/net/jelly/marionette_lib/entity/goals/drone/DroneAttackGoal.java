@@ -1,4 +1,4 @@
-package net.jelly.marionette_lib.entity.goals;
+package net.jelly.marionette_lib.entity.goals.drone;
 
 import mod.chloeprime.aaaparticles.api.common.AAALevel;
 import mod.chloeprime.aaaparticles.api.common.ParticleEmitterInfo;

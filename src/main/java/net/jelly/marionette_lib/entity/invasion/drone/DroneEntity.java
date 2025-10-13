@@ -1,16 +1,10 @@
 package net.jelly.marionette_lib.entity.invasion.drone;
 
-import mod.chloeprime.aaaparticles.api.common.AAALevel;
-import mod.chloeprime.aaaparticles.api.common.ParticleEmitterInfo;
-import net.jelly.marionette_lib.MarionetteMod;
-import net.jelly.marionette_lib.entity.goals.DroneAttackGoal;
-import net.jelly.marionette_lib.entity.goals.DroneMoveTowardTargetGoal;
-import net.jelly.marionette_lib.entity.goals.DroneHoverGoal;
+import net.jelly.marionette_lib.entity.goals.MoveTowardTargetGoal;
+import net.jelly.marionette_lib.entity.goals.drone.DroneAttackGoal;
+import net.jelly.marionette_lib.entity.goals.HoverGoal;
+import net.jelly.marionette_lib.entity.goals.IHoverEntity;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.syncher.EntityDataAccessor;
-import net.minecraft.network.syncher.EntityDataSerializers;
-import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.FlyingMob;
 import net.minecraft.world.entity.Mob;
@@ -24,7 +18,7 @@ import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 
-public class DroneEntity extends FlyingMob {
+public class DroneEntity extends FlyingMob implements IHoverEntity {
 
     public DroneEntity(EntityType<? extends FlyingMob> pEntityType, Level pLevel) {
         super(pEntityType, pLevel);
@@ -33,8 +27,8 @@ public class DroneEntity extends FlyingMob {
         // Basic behaviors
         this.goalSelector.addGoal(0, new NearestAttackableTargetGoal<>(this, Player.class, false));
         this.goalSelector.addGoal(1, new DroneAttackGoal(this));
-        this.goalSelector.addGoal(2, new DroneMoveTowardTargetGoal(this));
-        this.goalSelector.addGoal(3, new DroneHoverGoal(this));
+        this.goalSelector.addGoal(2, new MoveTowardTargetGoal(this, 6f, 1.2f, 0.1f));
+        this.goalSelector.addGoal(3, new HoverGoal(this, 5f, 0.2f));
         this.goalSelector.addGoal(4, new RandomLookAroundGoal(this));
     }
 
