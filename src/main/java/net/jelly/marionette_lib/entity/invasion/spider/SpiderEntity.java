@@ -4,6 +4,7 @@ import net.jelly.marionette_lib.entity.examples.octopus.OctopusPartEntity;
 import net.jelly.marionette_lib.entity.goals.HoverGoal;
 import net.jelly.marionette_lib.entity.goals.IHoverEntity;
 import net.jelly.marionette_lib.entity.goals.MoveTowardTargetGoal;
+import net.jelly.marionette_lib.entity.goals.spider.SpiderMoveTowardTargetGoal;
 import net.jelly.marionette_lib.entity.invasion.drone.DroneEntity;
 import net.jelly.marionette_lib.utility.FabrikAnimator;
 import net.jelly.marionette_lib.utility.ProceduralAnimatable;
@@ -22,6 +23,7 @@ import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.entity.PartEntity;
 import org.jetbrains.annotations.Nullable;
@@ -33,7 +35,10 @@ public class SpiderEntity extends FlyingMob implements ProceduralAnimatable, IHo
     private final SpiderPartEntity[] allParts;
     FabrikAnimator[] legAnimators = new FabrikAnimator[4];
     Vec3[] restPos = new Vec3[4];
-    private static final EntityDataAccessor<Vector3f> TARGET_POS = SynchedEntityData.defineId(SpiderEntity.class, EntityDataSerializers.VECTOR3);
+    private static final EntityDataAccessor<Integer> GROUND_POS_1 = SynchedEntityData.defineId(SpiderEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> GROUND_POS_2 = SynchedEntityData.defineId(SpiderEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> GROUND_POS_3 = SynchedEntityData.defineId(SpiderEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> GROUND_POS_4 = SynchedEntityData.defineId(SpiderEntity.class, EntityDataSerializers.INT);
 
     private SpiderPartEntity[] createLeg() {
         SpiderPartEntity legPart1 = new SpiderPartEntity(this, 16f/16, 16f/16, 20f/16);
@@ -65,8 +70,7 @@ public class SpiderEntity extends FlyingMob implements ProceduralAnimatable, IHo
 
         // goals
         this.goalSelector.addGoal(0, new NearestAttackableTargetGoal<>(this, Player.class, false));
-        this.goalSelector.addGoal(2, new MoveTowardTargetGoal(this, 2, 0.35f, 0.065f));
-        this.goalSelector.addGoal(3, new HoverGoal(this, 2.5f, 0.1f, true, 0));
+        this.goalSelector.addGoal(2, new SpiderMoveTowardTargetGoal(this, 2, 0.15f, 0.035f));
         this.goalSelector.addGoal(4, new RandomLookAroundGoal(this));
     }
 
@@ -101,14 +105,18 @@ public class SpiderEntity extends FlyingMob implements ProceduralAnimatable, IHo
     public void tick() {
         super.tick();
 
-        if(this.getGroundDistance() > 1.55) {
-            this.addDeltaMovement(new Vec3(0, -0.1f, 0));;
+        if(this.getGroundDistance() > 2.5) {
+            this.addDeltaMovement(new Vec3(0, -0.05f, 0));;
+        }
+
+        if (this.getGroundDistance() < 2.25f) {
+            this.addDeltaMovement(new Vec3(0, 0.05f, 0));
         }
 
         for (int i = 0; i < 4; i++) {
             FabrikAnimator legAnimator = legAnimators[i];
 
-            // Forward/back and left/right base offsets (in local body space)
+            // forward/back and left/right base offsets (in local body space)
             double forwardRootOffset = (i < 2) ? 0.6 : -0.6;  // front/back
             double sideRootOffset = (i % 2 == 0) ? -0.6 : 0.6; // left/right
 
@@ -118,19 +126,34 @@ public class SpiderEntity extends FlyingMob implements ProceduralAnimatable, IHo
             Vec3 forward = Vec3.directionFromRotation(0, this.yBodyRot).normalize();
             Vec3 right = forward.cross(new Vec3(0, 1, 0)).normalize();
 
-            // Compute unique leg root per limb
+            // compute unique leg root per limb
             Vec3 legRoot = this.position()
                     .add(forward.scale(forwardRootOffset))
                     .add(right.scale(sideRootOffset))
                     .add(new Vec3(0, 0.15, 0));
             legAnimator.setRoot(legRoot);
 
-            // Compute rest position — down and outward a bit
+            // compute rest position — down and outward a bit
             Vec3 legRest = this.position()
                     .add(forward.scale(forwardRestOffset))
                     .add(right.scale(sideRestOffset))
                     .add(new Vec3(0, -2.5f, 0));
 
+            // Probe terrain height at rest X/Z
+            BlockPos restPosXZ = BlockPos.containing(legRest.x, this.getY() + 2, legRest.z);
+            int groundY;
+            if(!this.level().isClientSide) {
+                groundY = (this.level().getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, restPosXZ.getX(), restPosXZ.getZ()));
+                setLegGroundY(i, groundY);
+            }
+            else groundY = getLegGroundY(i); // heightmap is inverted on client
+
+            // Clamp adjustment to prevent extreme stretching
+            double baseY = this.position().y;
+            if (Math.abs(groundY - baseY) < 7.0) {
+                legRest = new Vec3(legRest.x, groundY - 0.2, legRest.z);
+            }
+            // step forward
             if(restPos[i] == null || restPos[i].distanceTo(legRest) > 4) restPos[i] = legRest;
 
             Vec3 chainEndPos = legAnimator.chainEndPos();
@@ -184,9 +207,38 @@ public class SpiderEntity extends FlyingMob implements ProceduralAnimatable, IHo
         return this.getY() - y;
     }
 
+    public void setLegGroundY(int i, int y) {
+        switch (i) {
+            case 1:
+                this.entityData.set(GROUND_POS_1, y);
+            case 2:
+                this.entityData.set(GROUND_POS_2, y);
+            case 3:
+                this.entityData.set(GROUND_POS_3, y);
+            case 4:
+                this.entityData.set(GROUND_POS_4, y);
+        }
+    }
+
+    public int getLegGroundY(int i) {
+        switch (i) {
+            case 1:
+                return this.entityData.get(GROUND_POS_1);
+            case 2:
+                return this.entityData.get(GROUND_POS_2);
+            case 3:
+                return this.entityData.get(GROUND_POS_3);
+            default:
+                return this.entityData.get(GROUND_POS_4);
+        }
+    }
+
     @Override
     protected void defineSynchedData() {
         super.defineSynchedData();
-        this.entityData.define(TARGET_POS, new Vector3f(0,0,0));
+        this.entityData.define(GROUND_POS_1, 0);
+        this.entityData.define(GROUND_POS_2, 0);
+        this.entityData.define(GROUND_POS_3, 0);
+        this.entityData.define(GROUND_POS_4, 0);
     }
 }

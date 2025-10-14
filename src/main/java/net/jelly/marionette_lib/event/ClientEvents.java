@@ -37,6 +37,7 @@ public class ClientEvents {
         static int clientRedstoneIndex = 0;
         static RedTintFx redTint;
 
+        /** TODO: once totalSeconds gets too large, minor visual bugs appear in the shaders **/
         @SubscribeEvent
         public static void renderSkyEffects(RenderLevelStageEvent event) {
             if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_SKY) return;
