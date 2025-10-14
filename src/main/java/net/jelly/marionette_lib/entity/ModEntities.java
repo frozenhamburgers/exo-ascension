@@ -7,6 +7,9 @@ import net.jelly.marionette_lib.entity.examples.octopus.OctopusRenderer;
 import net.jelly.marionette_lib.entity.examples.worm.WormEntity;
 import net.jelly.marionette_lib.entity.examples.worm.WormModel;
 import net.jelly.marionette_lib.entity.examples.worm.WormRenderer;
+import net.jelly.marionette_lib.entity.invasion.gorgon.GorgonEntity;
+import net.jelly.marionette_lib.entity.invasion.gorgon.GorgonModel;
+import net.jelly.marionette_lib.entity.invasion.gorgon.GorgonRenderer;
 import net.jelly.marionette_lib.entity.invasion.grappler.GrapplerEntity;
 import net.jelly.marionette_lib.entity.invasion.grappler.GrapplerModel;
 import net.jelly.marionette_lib.entity.invasion.grappler.GrapplerRenderer;
@@ -73,6 +76,12 @@ public class ModEntities {
                     .build("spider")
     );
 
+    public static final RegistryObject<EntityType<GorgonEntity>> GORGON = ENTITY_TYPES.register("gorgon", () ->
+            EntityType.Builder.of(GorgonEntity::new, MobCategory.MISC)
+                    .sized(2.0f,2.0f)
+                    .build("gorgon")
+    );
+
     public static void register(IEventBus eventBus) {
         ENTITY_TYPES.register(eventBus);
     }
@@ -91,6 +100,7 @@ public class ModEntities {
             EntityRenderers.register(ModEntities.LEECH.get(), LeechRenderer::new);
             EntityRenderers.register(ModEntities.GRAPPLER.get(), GrapplerRenderer::new);
             EntityRenderers.register(ModEntities.SPIDER.get(), SpiderRenderer::new);
+            EntityRenderers.register(ModEntities.GORGON.get(), GorgonRenderer::new);
         }
         @SubscribeEvent
         public static void registerLayer(EntityRenderersEvent.RegisterLayerDefinitions event) {
@@ -101,6 +111,7 @@ public class ModEntities {
             event.registerLayerDefinition(LeechRenderer.LEECH_LAYER, LeechModel::createBodyLayer);
             event.registerLayerDefinition(GrapplerRenderer.GRAPPLER_LAYER, GrapplerModel::createBodyLayer);
             event.registerLayerDefinition(SpiderRenderer.SPIDER_LAYER, SpiderModel::createBodyLayer);
+            event.registerLayerDefinition(GorgonRenderer.GORGON_LAYER, GorgonModel::createBodyLayer);
         }
     }
 
@@ -115,6 +126,7 @@ public class ModEntities {
             event.put(ModEntities.LEECH.get(), LeechEntity.createAttributes().build());
             event.put(ModEntities.GRAPPLER.get(), GrapplerEntity.createAttributes().build());
             event.put(ModEntities.SPIDER.get(), SpiderEntity.createAttributes().build());
+            event.put(ModEntities.GORGON.get(), GorgonEntity.createAttributes().build());
         }
 
     }

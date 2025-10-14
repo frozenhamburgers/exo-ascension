@@ -42,9 +42,9 @@ public class SpiderEntity extends FlyingMob implements ProceduralAnimatable, IHo
 
     private SpiderPartEntity[] createLeg() {
         SpiderPartEntity legPart1 = new SpiderPartEntity(this, 16f/16, 16f/16, 20f/16);
-        SpiderPartEntity legPart2 = new SpiderPartEntity(this, 16f/16, 16f/16, 18f/16);
-        SpiderPartEntity legPart3 = new SpiderPartEntity(this, 16f/16, 16f/16, 18f/16);
-        SpiderPartEntity legPart4 = new SpiderPartEntity(this, 16f/16, 16f/16, 18f/16);
+        SpiderPartEntity legPart2 = new SpiderPartEntity(this, 12f/16, 12f/16, 18f/16);
+        SpiderPartEntity legPart3 = new SpiderPartEntity(this, 12f/16, 12f/16, 18f/16);
+        SpiderPartEntity legPart4 = new SpiderPartEntity(this, 12f/16, 12f/16, 18f/16);
         SpiderPartEntity[] parts  = new SpiderPartEntity[]
                 {legPart1, legPart2, legPart3, legPart4};
         return parts;

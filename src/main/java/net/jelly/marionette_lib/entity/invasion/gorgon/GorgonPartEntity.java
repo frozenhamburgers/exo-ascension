@@ -1,4 +1,4 @@
-package net.jelly.marionette_lib.entity.invasion.spider;
+package net.jelly.marionette_lib.entity.invasion.gorgon;
 
 import net.jelly.marionette_lib.networking.ModMessages;
 import net.jelly.marionette_lib.networking.MultipartEntityMessage;
@@ -13,10 +13,10 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
 
-public class SpiderPartEntity extends AbstractPartEntity<SpiderEntity> {
+public class GorgonPartEntity extends AbstractPartEntity<GorgonEntity> {
     private EntityDimensions size;
 
-    public SpiderPartEntity(SpiderEntity parent, float sizeXZ, float sizeY, float length) {
+    public GorgonPartEntity(GorgonEntity parent, float sizeXZ, float sizeY, float length) {
         super(parent);
         this.size = EntityDimensions.fixed(sizeXZ, sizeY);
         this.refreshDimensions();
@@ -73,7 +73,7 @@ public class SpiderPartEntity extends AbstractPartEntity<SpiderEntity> {
             List<LivingEntity> targets = this.level().getEntitiesOfClass(
                     LivingEntity.class,
                     this.getBoundingBox().inflate(damageRadius),
-                    entity -> entity.isAlive() && !(entity instanceof SpiderEntity) // avoid self-hits or friendly fire
+                    entity -> entity.isAlive() && !(entity instanceof GorgonEntity) // avoid self-hits or friendly fire
             );
 
             for (LivingEntity target : targets) {
