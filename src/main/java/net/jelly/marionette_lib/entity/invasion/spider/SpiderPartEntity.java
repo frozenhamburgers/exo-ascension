@@ -1,4 +1,4 @@
-package net.jelly.marionette_lib.entity.invasion.grappler;
+package net.jelly.marionette_lib.entity.invasion.spider;
 
 import net.jelly.marionette_lib.networking.ModMessages;
 import net.jelly.marionette_lib.networking.MultipartEntityMessage;
@@ -9,10 +9,10 @@ import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.phys.AABB;
 
-public class GrapplerPartEntity extends AbstractPartEntity<GrapplerEntity> {
+public class SpiderPartEntity extends AbstractPartEntity<SpiderEntity> {
     private EntityDimensions size;
 
-    public GrapplerPartEntity(GrapplerEntity parent, float sizeXZ, float sizeY, float length) {
+    public SpiderPartEntity(SpiderEntity parent, float sizeXZ, float sizeY, float length) {
         super(parent);
         this.size = EntityDimensions.fixed(sizeXZ, sizeY);
         this.refreshDimensions();

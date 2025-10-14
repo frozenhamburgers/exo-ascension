@@ -16,6 +16,9 @@ import net.jelly.marionette_lib.entity.invasion.leech.LeechRenderer;
 import net.jelly.marionette_lib.entity.invasion.drone.DroneEntity;
 import net.jelly.marionette_lib.entity.invasion.drone.DroneModel;
 import net.jelly.marionette_lib.entity.invasion.drone.DroneRenderer;
+import net.jelly.marionette_lib.entity.invasion.spider.SpiderEntity;
+import net.jelly.marionette_lib.entity.invasion.spider.SpiderModel;
+import net.jelly.marionette_lib.entity.invasion.spider.SpiderRenderer;
 import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
@@ -64,6 +67,12 @@ public class ModEntities {
                     .build("grappler")
     );
 
+    public static final RegistryObject<EntityType<SpiderEntity>> SPIDER = ENTITY_TYPES.register("spider", () ->
+            EntityType.Builder.of(SpiderEntity::new, MobCategory.MISC)
+                    .sized(1.0f,1.0f)
+                    .build("spider")
+    );
+
     public static void register(IEventBus eventBus) {
         ENTITY_TYPES.register(eventBus);
     }
@@ -81,6 +90,7 @@ public class ModEntities {
             EntityRenderers.register(ModEntities.DRONE.get(), DroneRenderer::new);
             EntityRenderers.register(ModEntities.LEECH.get(), LeechRenderer::new);
             EntityRenderers.register(ModEntities.GRAPPLER.get(), GrapplerRenderer::new);
+            EntityRenderers.register(ModEntities.SPIDER.get(), SpiderRenderer::new);
         }
         @SubscribeEvent
         public static void registerLayer(EntityRenderersEvent.RegisterLayerDefinitions event) {
@@ -90,6 +100,7 @@ public class ModEntities {
             event.registerLayerDefinition(DroneRenderer.DRONE_LAYER, DroneModel::createBodyLayer);
             event.registerLayerDefinition(LeechRenderer.LEECH_LAYER, LeechModel::createBodyLayer);
             event.registerLayerDefinition(GrapplerRenderer.GRAPPLER_LAYER, GrapplerModel::createBodyLayer);
+            event.registerLayerDefinition(SpiderRenderer.SPIDER_LAYER, SpiderModel::createBodyLayer);
         }
     }
 
@@ -103,6 +114,7 @@ public class ModEntities {
             event.put(ModEntities.DRONE.get(), DroneEntity.createAttributes().build());
             event.put(ModEntities.LEECH.get(), LeechEntity.createAttributes().build());
             event.put(ModEntities.GRAPPLER.get(), GrapplerEntity.createAttributes().build());
+            event.put(ModEntities.SPIDER.get(), SpiderEntity.createAttributes().build());
         }
 
     }

@@ -106,6 +106,11 @@ public class FabrikAnimator {
     }
 
     public void tickMultipart() {
+        primeMultipart();
+        for (AbstractPartEntity part : allParts) part.tick();
+    }
+
+    public void primeMultipart() {
         // total chain length
         float totalLength = 0;
         float distToTarget = (float) (fabrikTarget.subtract(root()).length());
@@ -132,7 +137,5 @@ public class FabrikAnimator {
             } while (!followRootOnly && fabrikTarget.subtract(allParts[allParts.length - 1].getEndPos()).length() > tolerance && fiterations < 100);
             if (fiterations >= 100 ) System.out.println("iterations greater than 99");
         }
-
-        for (AbstractPartEntity part : allParts) part.tick();
     }
 }
