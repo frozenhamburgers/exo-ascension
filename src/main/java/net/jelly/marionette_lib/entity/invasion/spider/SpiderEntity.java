@@ -32,6 +32,7 @@ import java.util.ArrayList;
 public class SpiderEntity extends FlyingMob implements ProceduralAnimatable, IHoverEntity {
     private final SpiderPartEntity[] allParts;
     FabrikAnimator[] legAnimators = new FabrikAnimator[4];
+    Vec3[] restPos = new Vec3[4];
     private static final EntityDataAccessor<Vector3f> TARGET_POS = SynchedEntityData.defineId(SpiderEntity.class, EntityDataSerializers.VECTOR3);
 
     private SpiderPartEntity[] createLeg() {
@@ -64,7 +65,7 @@ public class SpiderEntity extends FlyingMob implements ProceduralAnimatable, IHo
 
         // goals
         this.goalSelector.addGoal(0, new NearestAttackableTargetGoal<>(this, Player.class, false));
-        this.goalSelector.addGoal(2, new MoveTowardTargetGoal(this, 3, 0.85f, 0.065f));
+        this.goalSelector.addGoal(2, new MoveTowardTargetGoal(this, 2, 0.35f, 0.065f));
         this.goalSelector.addGoal(3, new HoverGoal(this, 2.5f, 0.1f, true, 0));
         this.goalSelector.addGoal(4, new RandomLookAroundGoal(this));
     }
@@ -100,7 +101,7 @@ public class SpiderEntity extends FlyingMob implements ProceduralAnimatable, IHo
     public void tick() {
         super.tick();
 
-        if(this.getGroundDistance() > 1.75) {
+        if(this.getGroundDistance() > 1.55) {
             this.addDeltaMovement(new Vec3(0, -0.1f, 0));;
         }
 
@@ -130,7 +131,7 @@ public class SpiderEntity extends FlyingMob implements ProceduralAnimatable, IHo
                     .add(right.scale(sideRestOffset))
                     .add(new Vec3(0, -2.5f, 0));
 
-            Vec3 restPos = legRest;
+            if(restPos[i] == null || restPos[i].distanceTo(legRest) > 4) restPos[i] = legRest;
 
             Vec3 chainEndPos = legAnimator.chainEndPos();
 
@@ -138,19 +139,17 @@ public class SpiderEntity extends FlyingMob implements ProceduralAnimatable, IHo
                                         .add(right.scale(sideRootOffset*10)));
             legAnimator.primeMultipart(); // prime leg in the legs direction
 
-            if (chainEndPos.distanceTo(restPos) > 0.05) {
-                Vec3 toRest = restPos.subtract(chainEndPos);
+            if (chainEndPos.distanceTo(restPos[i]) > 0.1) {
+                Vec3 toRest = restPos[i].subtract(chainEndPos);
                 legAnimator.setFabrikTarget(
                         chainEndPos
-                                .add(toRest.normalize().scale(0.15))
+                                .add(toRest.normalize().scale(0.25))
                                 .add(toRest.scale(0.1))
+                                .add(toRest.normalize().scale(this.getDeltaMovement().dot(toRest)*0.75f))
                 );
             }
             else legAnimator.setFabrikTarget(chainEndPos);
         }
-
-
-
         tickMultipart();
     }
 

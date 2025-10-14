@@ -55,7 +55,7 @@ public class GrapplerEntity extends FlyingMob implements ProceduralAnimatable, I
         // goals
         this.goalSelector.addGoal(0, new NearestAttackableTargetGoal<>(this, Player.class, false));
         this.goalSelector.addGoal(2, new MoveTowardTargetGoal(this, 3, 0.85f, 0.065f));
-        this.goalSelector.addGoal(3, new HoverGoal(this, 1.5f, 0.1f, false, 5));
+        this.goalSelector.addGoal(3, new HoverGoal(this, 1.5f, 0.1f, true, 0));
         this.goalSelector.addGoal(4, new RandomLookAroundGoal(this));
     }
 
