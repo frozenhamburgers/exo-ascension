@@ -2,5 +2,6 @@
   "entity.ascension_mod.drone": "XE-03 Icaris",
   "entity.ascension_mod.leech": "XB-04 Lamia",
   "entity.ascension_mod.grappler": "XA-08 Talos",
-  "entity.ascension_mod.spider": "XB-16 Arachne"
+  "entity.ascension_mod.spider": "XB-16 Arachne",
+  "entity.ascension_mod.gorgon": "XA-05 Gorgon"
 }
