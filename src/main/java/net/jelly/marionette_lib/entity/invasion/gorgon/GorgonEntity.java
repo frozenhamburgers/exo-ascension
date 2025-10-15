@@ -38,6 +38,8 @@ public class GorgonEntity extends FlyingMob implements ProceduralAnimatable, IHo
     FabrikAnimator[] legAnimators = new FabrikAnimator[6];
     Vec3[] restPos = new Vec3[6];
     ArrayList<GorgonPartEntity> allPartsList = new ArrayList<>();
+    public boolean attacking = false;
+    public Vec3 lastLook;
 
     private GorgonPartEntity[] createTentacle() {
         GorgonPartEntity legPart1 = new GorgonPartEntity(this, 6f/16, 6f/16, 9f/16);
@@ -71,7 +73,7 @@ public class GorgonEntity extends FlyingMob implements ProceduralAnimatable, IHo
         this.targetSelector.addGoal(0, new NearestAttackableTargetGoal<>(this, Player.class, false));
         this.goalSelector.addGoal(1, new GorgonAttackGoal(this));
         this.goalSelector.addGoal(2, new MoveTowardTargetGoal(this, 4.5f, 1.2f, 0.1f));
-//        this.goalSelector.addGoal(3, new HoverGoal(this, 5f, 0.2f, true, 0));
+        this.goalSelector.addGoal(3, new HoverGoal(this, 5f, 0.2f, true, 0));
         this.goalSelector.addGoal(4, new RandomLookAroundGoal(this));
     }
 
@@ -108,8 +110,17 @@ public class GorgonEntity extends FlyingMob implements ProceduralAnimatable, IHo
     public void tick() {
         super.tick();
 
+        if(this.getGroundDistance() < 3) {
+            this.addDeltaMovement(new Vec3(0, 0.05f, 0));;
+        }
+
         if(this.getTarget() != null) {
-            this.lookAt(EntityAnchorArgument.Anchor.EYES, this.getTarget().position().add(0,1,0));
+            if (!attacking) {
+                this.lookAt(EntityAnchorArgument.Anchor.EYES, this.getTarget().position().add(0,1,0));
+                lastLook = this.getTarget().position();
+            }
+            else this.lookAt(EntityAnchorArgument.Anchor.EYES, lastLook.add(0,1,0));
+
         }
 
         for (int i = 0; i < 6; i++) {

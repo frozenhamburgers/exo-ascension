@@ -1,5 +1,6 @@
 package net.jelly.marionette_lib.entity.goals;
 
+import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.goal.Goal;
@@ -37,7 +38,7 @@ public class MoveTowardTargetGoal extends Goal {
     @Override
     public void tick() {
         LivingEntity target = mob.getTarget();
-        mob.lookAt(target, 180, 180);
+        mob.lookAt(EntityAnchorArgument.Anchor.EYES, target.position().add(0,1,0));
         if(mob.getSpeed() <= MAX_SPEED) mob.addDeltaMovement(mob.getLookAngle().normalize().scale(ACCEL));
     }
 }

@@ -8,6 +8,7 @@ import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.Goal;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.EnumSet;
@@ -55,6 +56,7 @@ public class GorgonAttackGoal extends Goal {
 
     @Override
     public void stop() {
+        mob.attacking = false;
         super.stop();
     }
 
@@ -71,10 +73,9 @@ public class GorgonAttackGoal extends Goal {
     @Override
     public void tick() {
         LivingEntity target = mob.getTarget();
-        mob.lookAt(EntityAnchorArgument.Anchor.EYES, target.position());
         System.out.println(timer);
 
-        if(!retreat) {
+        if(!retreat && !mob.attacking) {
             if (mob.distanceTo(mob.getTarget()) < 3)
                 mob.addDeltaMovement(mob.getLookAngle().normalize().scale(-0.035f));
             else if (mob.distanceTo(mob.getTarget()) > 5)
@@ -85,25 +86,43 @@ public class GorgonAttackGoal extends Goal {
             this.mob.addDeltaMovement(new Vec3(0, RISE_SPEED, 0));
         }
 
+        if(timer == 114) mob.attacking = true;
         if(timer == 124) AAALevel.addParticle(mob.level(), false, drill);
         if(timer >= 124 && timer < 134) {
-            Vec3 start = mob.position().add(0, mob.getEyeHeight(), 0);
-            Vec3 end = start.add(mob.getLookAngle().normalize().scale(6.0));
-            var aabb = mob.getBoundingBox().expandTowards(mob.getLookAngle().scale(10.0)).inflate(0.5);
+            Vec3 eyePos = mob.position().add(0, mob.getEyeHeight(), 0);
+            Vec3 lookDir = mob.getLookAngle().normalize();
+            double range = 7.0;
+            double coneAngle = Math.toRadians(30);
 
-            for (LivingEntity hit : mob.level().getEntitiesOfClass(LivingEntity.class, aabb, e -> e != mob && e.isAlive())) {
-                var optionalHit = hit.getBoundingBox().clip(start, end);
-                if (optionalHit.isPresent()) {
+            AABB searchBox = mob.getBoundingBox().expandTowards(lookDir.scale(range)).inflate(2.0);
+
+            for (LivingEntity hit : mob.level().getEntitiesOfClass(LivingEntity.class, searchBox,
+                    e -> e != mob && e.isAlive())) {
+
+                Vec3 toTarget = hit.position().add(0, hit.getBbHeight() * 0.5, 0).subtract(eyePos);
+                double distance = toTarget.length();
+
+                if (distance > range)
+                    continue;
+
+                double dot = lookDir.dot(toTarget.normalize());
+                double angle = Math.acos(dot); // in radians
+
+                if (angle <= coneAngle) {
+                    // inside cone apply damage or effects
                     hit.hurt(mob.damageSources().mobAttack(mob), 3.0F);
-                    Vec3 push = mob.getLookAngle().scale(0.1);
+
+                    Vec3 push = lookDir.scale(0.1);
                     hit.push(push.x, 0.05, push.z);
-                    if(target != null && hit == target) {
+
+                    if (target != null && hit == target) {
                         attackHit = true;
                     }
                 }
             }
         }
         else if(timer >= 134) {
+            mob.attacking = false;
             if(target == null) return;
             if(attackHit) {
                 charging = true;
