@@ -92,7 +92,7 @@ public class ClientEvents {
             RenderSystem.disableBlend();
 
             // POST SHADERS
-            redTint.intensity = redHourIntensity/2;
+            redTint.intensity = redHourIntensity/4;
         }
 
         @SubscribeEvent

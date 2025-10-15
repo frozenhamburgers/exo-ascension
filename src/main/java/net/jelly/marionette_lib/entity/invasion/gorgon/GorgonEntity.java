@@ -4,6 +4,7 @@ import net.jelly.marionette_lib.entity.goals.HoverGoal;
 import net.jelly.marionette_lib.entity.goals.IHoverEntity;
 import net.jelly.marionette_lib.entity.goals.MoveTowardTargetGoal;
 import net.jelly.marionette_lib.entity.goals.drone.DroneAttackGoal;
+import net.jelly.marionette_lib.entity.goals.gorgon.GorgonAttackGoal;
 import net.jelly.marionette_lib.entity.goals.spider.SpiderMoveTowardTargetGoal;
 import net.jelly.marionette_lib.entity.invasion.drone.DroneEntity;
 import net.jelly.marionette_lib.utility.FabrikAnimator;
@@ -13,6 +14,7 @@ import net.minecraft.client.renderer.entity.CreeperRenderer;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.FlyingMob;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
@@ -67,8 +69,9 @@ public class GorgonEntity extends FlyingMob implements ProceduralAnimatable, IHo
 
         // goals
         this.targetSelector.addGoal(0, new NearestAttackableTargetGoal<>(this, Player.class, false));
-        this.goalSelector.addGoal(2, new MoveTowardTargetGoal(this, 6f, 1.2f, 0.1f));
-        this.goalSelector.addGoal(3, new HoverGoal(this, 5f, 0.2f, true, 0));
+        this.goalSelector.addGoal(1, new GorgonAttackGoal(this));
+        this.goalSelector.addGoal(2, new MoveTowardTargetGoal(this, 4.5f, 1.2f, 0.1f));
+//        this.goalSelector.addGoal(3, new HoverGoal(this, 5f, 0.2f, true, 0));
         this.goalSelector.addGoal(4, new RandomLookAroundGoal(this));
     }
 
@@ -228,6 +231,11 @@ public class GorgonEntity extends FlyingMob implements ProceduralAnimatable, IHo
         }
 
         return this.getY() - y;
+    }
+
+    @Override
+    public boolean canCollideWith(Entity other) {
+        return !(other instanceof GorgonPartEntity);
     }
 
     @Override

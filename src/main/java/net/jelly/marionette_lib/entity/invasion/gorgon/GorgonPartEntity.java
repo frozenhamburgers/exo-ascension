@@ -51,6 +51,11 @@ public class GorgonPartEntity extends AbstractPartEntity<GorgonEntity> {
     }
 
     @Override
+    public boolean canCollideWith(Entity other) {
+        return other != this.getParent();
+    }
+
+    @Override
     public boolean hurt(DamageSource source, float amount) {
         Entity parent = this.getParent();
         if (parent != null) {
@@ -78,9 +83,7 @@ public class GorgonPartEntity extends AbstractPartEntity<GorgonEntity> {
 
             for (LivingEntity target : targets) {
                 if (this.distanceTo(target) < damageRadius + 0.5) {
-                    target.hurt(this.damageSources().mobAttack(this.getParent()), 4.0f); // damage amount adjustable
-                    Vec3 push = this.position().subtract(target.position()).normalize().scale(0.3);
-                    target.push(push.x, 0.05, push.z);
+                    target.hurt(this.damageSources().mobAttack(this.getParent()), 5.0f); // damage amount adjustable
                 }
             }
         }
