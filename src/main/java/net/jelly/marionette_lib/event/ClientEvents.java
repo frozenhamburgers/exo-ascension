@@ -6,6 +6,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import net.jelly.marionette_lib.MarionetteMod;
 
+import net.jelly.marionette_lib.global.PollutionHandler;
 import net.jelly.marionette_lib.global.RedstoneIndexData;
 import net.jelly.marionette_lib.post_processing.RedTintFx;
 import net.jelly.marionette_lib.post_processing.RedTintProcessor;
@@ -53,7 +54,7 @@ public class ClientEvents {
             AbstractUniform u;
 
             // CORE SHADERS
-            float redHourIntensity = clientRedstoneIndex / 100f;
+            float redHourIntensity = (float)Math.min(1.0, clientRedstoneIndex / (float) PollutionHandler.MAX_POLLUTION);
             RenderSystem.setShader(() -> CUSTOM_SKY_SHADER);
             if ((u = CUSTOM_SKY_SHADER.safeGetUniform("TotalTime")) != null) u.set(totalSeconds);
             if ((u = CUSTOM_SKY_SHADER.safeGetUniform("RedHourIntensity")) != null) u.set(redHourIntensity);
