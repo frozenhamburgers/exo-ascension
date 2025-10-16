@@ -8,6 +8,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.level.BlockEvent;
+import net.minecraftforge.event.level.PistonEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -68,12 +69,19 @@ public class PollutionHandler {
             // prevent multiple updates in the same 2 ticks
             if (RECENTLY_UPDATED.contains(pos)) return;
             RECENTLY_UPDATED.add(pos);
-
-            int signal = level.getBestNeighborSignal(pos);
             long chunkKey = level.getChunk(pos).getPos().toLong();
 
-            System.out.println("change!");
             POLLUTION_TRACKER.record(chunkKey, 1);
+        }
+
+        public static final float PISTON_POLLUTION = 1f; // # of block updates worth of pollution for a piston extension/retraction
+        @SubscribeEvent
+        public static void onPistonActivated(PistonEvent.Pre event) {
+            if (event.getLevel().isClientSide()) return;
+            Level level = (Level) event.getLevel();
+            RedstoneIndexData indexData = RedstoneIndexData.get(level.getServer().getLevel(Level.OVERWORLD));
+            long chunkKey = level.getChunk(event.getPos()).getPos().toLong();
+            POLLUTION_TRACKER.record(chunkKey, 10);
         }
 
         @SubscribeEvent
@@ -83,24 +91,6 @@ public class PollutionHandler {
         }
     }
 
-
-//    @SubscribeEvent
-//    public static void onPistonActivated(PistonEvent.Pre event) {
-//        if (event.getLevel().isClientSide()) return;
-//
-//
-//        Level level = (Level) event.getLevel();
-//        Direction dir = event.getDirection();
-//        BlockPos pos = event.getPos();
-//
-//        if (event.getLevel().getChunk(pos).getPos().toLong())
-//
-//        RedstoneIndexData indexData = RedstoneIndexData.get(level.getServer().getLevel(Level.OVERWORLD));
-//        indexData.add(2);
-//
-//        System.out.println("🤖 Piston " + event.getPistonAction() + " at " + pos + " facing " + dir);
-//        System.out.println("Current Pollution: " + indexData.get());
-//    }
 
 
 
