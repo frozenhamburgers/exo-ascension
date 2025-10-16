@@ -40,11 +40,6 @@ public class LeechLegPartEntity extends AbstractPartEntity<LeechPartEntity> {
     }
 
     @Override
-    public boolean canBeCollidedWith() {
-        return true;
-    }
-
-    @Override
     public boolean fireImmune() {
         return true;
     }

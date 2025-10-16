@@ -68,11 +68,6 @@ public class LeechPartEntity extends AbstractPartEntity<LeechEntity> implements 
     }
 
     @Override
-    public boolean canBeCollidedWith() {
-        return true;
-    }
-
-    @Override
     public boolean hurt(DamageSource source, float amount) {
         Entity parent = this.getParent();
         if (parent != null) {

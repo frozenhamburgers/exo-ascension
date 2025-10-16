@@ -4,11 +4,15 @@ import mod.chloeprime.aaaparticles.api.common.AAALevel;
 import mod.chloeprime.aaaparticles.api.common.ParticleEmitterInfo;
 import net.jelly.marionette_lib.MarionetteMod;
 import net.jelly.marionette_lib.entity.invasion.drone.DroneEntity;
+import net.jelly.marionette_lib.entity.invasion.spider.SpiderEntity;
 import net.jelly.marionette_lib.utility.ProceduralAnimatable;
 import net.jelly.marionette_lib.utility.FabrikAnimator;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.DifficultyInstance;
@@ -37,6 +41,7 @@ import java.util.List;
 public class LeechEntity extends FlyingMob implements ProceduralAnimatable {
     private final LeechPartEntity[] allBodyParts;
     private final LeechPartEntity[] allParts;
+    public static final int MAX_CHARGE = 30;
     FabrikAnimator bodyAnimator;
     Vec3 restPos = new Vec3(999, 999, 999);
     float moveYRot = 0;
@@ -48,12 +53,14 @@ public class LeechEntity extends FlyingMob implements ProceduralAnimatable {
     Vec3 moveTargetPoint = Vec3.ZERO;
     boolean leeched = false;
 
-    private int charge = 0;
     boolean laserPresent = false;
     int laserTimer = 0;
 
     private static final ParticleEmitterInfo LASER_PARTICLE = new ParticleEmitterInfo(new ResourceLocation(MarionetteMod.MODID, "laser/blue_laser"));
     ParticleEmitterInfo laser;
+
+    private static final EntityDataAccessor<Integer> CHARGE = SynchedEntityData.defineId(LeechEntity.class, EntityDataSerializers.INT);
+
 
 
     public LeechEntity(EntityType entityType, Level level) {
@@ -75,22 +82,30 @@ public class LeechEntity extends FlyingMob implements ProceduralAnimatable {
         bodyAnimator = new FabrikAnimator(this, allBodyParts);
         bodyAnimator.setFollowRootOnly(true);
 
-        LeechPartEntity leg1Part1 = new LeechPartEntity(this, 0.25F, 0.25F, 1f);
-        LeechPartEntity leg1Part2 = new LeechPartEntity(this, 0.25F, 0.25F, 1f);
-        LeechPartEntity leg2Part1 = new LeechPartEntity(this, 0.25F, 0.25F, 1f);
-        LeechPartEntity leg2Part2 = new LeechPartEntity(this, 0.25F, 0.25F, 1f);
-        LeechPartEntity leg3Part1 = new LeechPartEntity(this, 0.25F, 0.25F, 1f);
-        LeechPartEntity leg3Part2 = new LeechPartEntity(this, 0.25F, 0.25F, 1f);
-        LeechPartEntity leg4Part1 = new LeechPartEntity(this, 0.25F, 0.25F, 1f);
-        LeechPartEntity leg4Part2 = new LeechPartEntity(this, 0.25F, 0.25F, 1f);
-        legAnimators[0] = new FabrikAnimator(this, new LeechPartEntity[]{leg1Part1, leg1Part2});
-        legAnimators[1] = new FabrikAnimator(this, new LeechPartEntity[]{leg2Part1, leg2Part2});
-        legAnimators[2] = new FabrikAnimator(this, new LeechPartEntity[]{leg3Part1, leg3Part2});
-        legAnimators[3] = new FabrikAnimator(this, new LeechPartEntity[]{leg4Part1, leg4Part2});
+        LeechPartEntity leg1Part1 = new LeechPartEntity(this, 0.25F, 0.25F, 8/16f);
+        LeechPartEntity leg1Part2 = new LeechPartEntity(this, 0.25F, 0.25F, 10/16f);
+        LeechPartEntity leg1Part3 = new LeechPartEntity(this, 0.25F, 0.25F, 16/16f);
+        legAnimators[0] = new FabrikAnimator(this, new LeechPartEntity[]{leg1Part1, leg1Part2, leg1Part3});
+        LeechPartEntity leg2Part1 = new LeechPartEntity(this, 0.25F, 0.25F, 8/16f);
+        LeechPartEntity leg2Part2 = new LeechPartEntity(this, 0.25F, 0.25F, 10/16f);
+        LeechPartEntity leg2Part3 = new LeechPartEntity(this, 0.25F, 0.25F, 16/16f);
+        legAnimators[1] = new FabrikAnimator(this, new LeechPartEntity[]{leg2Part1, leg2Part2, leg2Part3});
+        LeechPartEntity leg3Part1 = new LeechPartEntity(this, 0.25F, 0.25F, 9/16f);
+        LeechPartEntity leg3Part2 = new LeechPartEntity(this, 0.25F, 0.25F, 10/16f);
+        LeechPartEntity leg3Part3 = new LeechPartEntity(this, 0.25F, 0.25F, 16/16f);
+        legAnimators[2] = new FabrikAnimator(this, new LeechPartEntity[]{leg3Part1, leg3Part2, leg3Part3});
+        LeechPartEntity leg4Part1 = new LeechPartEntity(this, 0.25F, 0.25F, 9/16f);
+        LeechPartEntity leg4Part2 = new LeechPartEntity(this, 0.25F, 0.25F, 10/16f);
+        LeechPartEntity leg4Part3 = new LeechPartEntity(this, 0.25F, 0.25F, 16/16f);
+        legAnimators[3] = new FabrikAnimator(this, new LeechPartEntity[]{leg4Part1, leg4Part2, leg4Part3});
 
         // allParts must still have all parts
         allParts = new LeechPartEntity[]{tail1Part, tail2Part, tail3Part, tail4Part, tail5Part, tail6Part, tail7Part, tail8Part, tail9Part, tail10Part,
-                leg1Part1, leg1Part2, leg2Part1, leg2Part2, leg3Part1, leg3Part2, leg4Part1, leg4Part2};
+                leg1Part1, leg1Part2, leg1Part3,
+                leg2Part1, leg2Part2, leg2Part3,
+                leg3Part1, leg3Part2, leg3Part3,
+                leg4Part1, leg4Part2, leg4Part3
+        };
     }
 
     @Override
@@ -178,7 +193,11 @@ public class LeechEntity extends FlyingMob implements ProceduralAnimatable {
                 }
             }
             laserTimer++;
-            laserPresent = laserTimer < 134;
+            if(laserTimer >= 134) {
+                laserPresent = false;
+                attackPhase = LeechEntity.AttackPhase.CIRCLE;
+                setCharge(0);
+            }
         }
         else {
             laserTimer = 0;
@@ -485,7 +504,7 @@ public class LeechEntity extends FlyingMob implements ProceduralAnimatable {
                     .entitySpaceRelativePosition(new Vec3(0,0,100000))
                     .useEntityHeadSpace()
                     .scale(0.5f);
-            chargedAttack = charge >= 30;
+            chargedAttack = getCharge() >= MAX_CHARGE;
             chargedAttackTimer = 0;
         }
 
@@ -493,7 +512,7 @@ public class LeechEntity extends FlyingMob implements ProceduralAnimatable {
             LeechEntity.this.setTarget(null);
             LeechEntity.this.attackPhase = LeechEntity.AttackPhase.CIRCLE;
             LeechEntity.this.leeched = false;
-            if(chargedAttack) charge = 0;
+            if(chargedAttack) setCharge(0);
             chargedAttack = false;
             laser.scale(0);
         }
@@ -509,7 +528,7 @@ public class LeechEntity extends FlyingMob implements ProceduralAnimatable {
                     if (LeechEntity.this.getBoundingBox().inflate((double) 0.2F).intersects(livingentity.getBoundingBox())) {
                         livingentity.hurt(LeechEntity.this.damageSources().mobAttack(LeechEntity.this), 3.0F);
                         LeechEntity.this.leeched = true;
-                        LeechEntity.this.charge++;
+                        LeechEntity.this.incrementCharge();
                     }
                     if (LeechEntity.this.hurtTime > 0) {
                         LeechEntity.this.attackPhase = LeechEntity.AttackPhase.CIRCLE;
@@ -522,8 +541,9 @@ public class LeechEntity extends FlyingMob implements ProceduralAnimatable {
                             AAALevel.addParticle(LeechEntity.this.level(), false, laser);
                             laserPresent = true;
                         }
+                        System.out.println(chargedAttackTimer);
                         chargedAttackTimer++;
-                        if(chargedAttackTimer > 20) LeechEntity.this.attackPhase = LeechEntity.AttackPhase.CIRCLE;
+                        if(chargedAttackTimer > 60) LeechEntity.this.attackPhase = LeechEntity.AttackPhase.CIRCLE;
                     }
                     else LeechEntity.this.moveTargetPoint = new Vec3(livingentity.getX(), livingentity.getY(0.5D) + 1, livingentity.getZ());
 
@@ -531,6 +551,25 @@ public class LeechEntity extends FlyingMob implements ProceduralAnimatable {
             }
             else leeched = false;
         }
+    }
+
+    @Override
+    protected void defineSynchedData() {
+        super.defineSynchedData();
+        this.entityData.define(CHARGE, 0);
+    }
+
+    public int getCharge() {
+        return this.entityData.get(CHARGE);
+    }
+
+    public void setCharge(int charge) {
+        this.entityData.set(CHARGE, charge);
+    }
+
+    public void incrementCharge() {
+        int charge = getCharge();
+        if(charge < MAX_CHARGE) setCharge(charge+1);
     }
 
 }
