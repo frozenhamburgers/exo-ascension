@@ -3,12 +3,11 @@ package net.jelly.marionette_lib.entity.invasion.gorgon;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import net.jelly.marionette_lib.MarionetteMod;
-import net.jelly.marionette_lib.render.ChargedEyeLayer;
+import net.jelly.marionette_lib.render.GorgonEyeLayer;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.MobRenderer;
-import net.minecraft.client.renderer.entity.layers.SpiderEyesLayer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.entity.PartEntity;
 
@@ -19,7 +18,7 @@ public class GorgonRenderer extends MobRenderer<GorgonEntity, GorgonModel> {
 
     public GorgonRenderer(EntityRendererProvider.Context pContext) {
         super(pContext, new GorgonModel(pContext.bakeLayer(GORGON_LAYER)), 2.0f);
-        this.addLayer(new ChargedEyeLayer<>(this));
+        this.addLayer(new GorgonEyeLayer<>(this));
     }
 
     @Override

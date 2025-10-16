@@ -7,19 +7,17 @@ import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
-import net.minecraft.client.renderer.entity.layers.EnergySwirlLayer;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
-import net.minecraft.client.renderer.entity.layers.SpiderEyesLayer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 
-public class ChargedEyeLayer<T extends LivingEntity, M extends EntityModel<T>> extends RenderLayer<T, M> {
+public class GorgonEyeLayer<T extends LivingEntity, M extends EntityModel<T>> extends RenderLayer<T, M> {
     private static final ResourceLocation EYE_TEXTURE = new ResourceLocation(MarionetteMod.MODID, "textures/entity/gorgonE.png");
     private static final RenderType CHARGED_EYES = RenderType.eyes(EYE_TEXTURE);
 
 
-    public ChargedEyeLayer(RenderLayerParent<T, M> parent) {
+    public GorgonEyeLayer(RenderLayerParent<T, M> parent) {
         super(parent);
     }
 
