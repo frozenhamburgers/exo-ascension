@@ -14,14 +14,16 @@ public class InvasionStage {
     public final int spawnCount;   // number of enemies to spawn per player per wave
     public final int stageId;
     public final int requiredProgress;
+    public final int restTime;
 
-    public InvasionStage(int stageId, int spawnTime, double minDist, double maxDist, int spawnCount, int requiredProgress) {
+    public InvasionStage(int stageId, int spawnTime, double minDist, double maxDist, int spawnCount, int requiredProgress, int restTime) {
         this.stageId = stageId;
         this.spawnTime = spawnTime;
         this.minDist = minDist;
         this.maxDist = maxDist;
         this.spawnCount = spawnCount;
         this.requiredProgress = requiredProgress;
+        this.restTime = restTime;
     }
 
     public InvasionStage addEnemy(EntityType<?> type, int weight) {

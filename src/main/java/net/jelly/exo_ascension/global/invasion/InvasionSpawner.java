@@ -30,9 +30,10 @@ public class InvasionSpawner implements CustomSpawner {
 
         InvasionData data = InvasionData.get(level);
         int stageIndex = data.getStage();
-        if (stageIndex < 0 || stageIndex - 1 >= InvasionData.STAGES.size()) return 0;
+        if (stageIndex < 0 || stageIndex >= InvasionData.STAGES.size()) return 0;
         InvasionStage stage = InvasionData.STAGES.get(stageIndex);
         if (stage == null) return 0;
+        if (data.restStage) return 0;
 
         // if stage changed
         if (lastStageId != stage.getStageId()) {

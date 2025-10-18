@@ -2,6 +2,7 @@ package net.jelly.exo_ascension.global.invasion;
 
 import net.jelly.exo_ascension.ExoAscensionMod;
 import net.jelly.exo_ascension.entity.ModEntities;
+import net.jelly.exo_ascension.global.pollution.RedstoneIndexData;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerBossEvent;
@@ -10,8 +11,10 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.BossEvent;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -20,17 +23,19 @@ import java.util.List;
 public class InvasionData extends SavedData {
     private int stage = 0; // stage -1 = invasion not active
     private int progress = 0;
-    protected final ServerBossEvent progressBar = new ServerBossEvent(Component.literal("test"),
+    protected final ServerBossEvent progressBar = new ServerBossEvent(Component.literal("Stage"),
             BossEvent.BossBarColor.BLUE, BossEvent.BossBarOverlay.PROGRESS);
+    public boolean restStage = false;
+    private int restStageTime = 0;
 
     // list of stages
     public static final List<InvasionStage> STAGES = List.of(
-            new InvasionStage(0, 300, 18, 26.0, 2, 40)
+            new InvasionStage(0, 150, 18, 26.0, 2, 10, 300)
                     .addEnemy(ModEntities.DRONE.get(), 1),
 
-            new InvasionStage(1, 30, 10, 32.0, 2, 100)
-                    .addEnemy(EntityType.HUSK, 4)
-                    .addEnemy(EntityType.WITHER_SKELETON, 2)
+            new InvasionStage(1, 200, 10, 32.0, 3, 20, 300)
+                    .addEnemy(ModEntities.DRONE.get(), 4)
+                    .addEnemy(ModEntities.LEECH.get(), 1)
     );
 
     public static InvasionData get(ServerLevel level) {
@@ -64,12 +69,13 @@ public class InvasionData extends SavedData {
         return progress;
     }
     public void addProgress(int p) {
+        if(this.restStage || stage < 0) return;
         progress = Math.min(progress+p, STAGES.get(stage).requiredProgress);
     }
 
     @Mod.EventBusSubscriber(modid = ExoAscensionMod.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
-    public class BossBarEvents {
-        @SubscribeEvent
+    public class InvasionForgeEvents {
+        @SubscribeEvent // show boss bar to players in overworld
         public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
             if(event.player instanceof ServerPlayer) {
                 InvasionData data = InvasionData.get(event.player.getServer().getLevel(Level.OVERWORLD));
@@ -86,8 +92,39 @@ public class InvasionData extends SavedData {
         public static void onServerTick(TickEvent.ServerTickEvent event) {
             InvasionData data = InvasionData.get(event.getServer().getLevel(Level.OVERWORLD));
             int progress = data.getProgress();
-            int maxProgress = STAGES.get(data.getStage()).requiredProgress;
+            int stageIndex = data.getStage();
+            if(stageIndex < 0) return;
+            else if(stageIndex >= InvasionData.STAGES.size()) {
+                data.setStage(-1);
+                return;
+            }
+            int maxProgress = STAGES.get(stageIndex).requiredProgress;
+            int restTime = STAGES.get(stageIndex).restTime;
+            // update boss bar
             data.progressBar.setProgress(1 - ((float)progress / maxProgress));
+            data.progressBar.setName(Component.literal("Stage " + stageIndex));
+
+            // manage stages
+            if(progress >= maxProgress) {
+                data.restStage = true;
+                data.restStageTime++;
+                data.progressBar.setProgress((float)data.restStageTime / restTime);
+            }
+            if(data.restStage && data.restStageTime >= restTime) {
+                data.restStage = false;
+                data.restStageTime = 0;
+                int nextStage = -1;
+                if(stageIndex + 1 < InvasionData.STAGES.size()) nextStage = stageIndex+1;
+                data.setStage(nextStage);
+            }
+        }
+
+        // DEBUG
+        @SubscribeEvent
+        public static void blockPlaced(BlockEvent.EntityPlaceEvent event) {
+            InvasionData data = InvasionData.get(event.getLevel().getServer().getLevel(Level.OVERWORLD));
+            if (event.getPlacedBlock().is(Blocks.AMETHYST_BLOCK))
+                data.setStage(0);
         }
 
     }
