@@ -3,6 +3,8 @@ package net.jelly.exo_ascension.entity.invasion.grappler;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import net.jelly.exo_ascension.ExoAscensionMod;
+import net.jelly.exo_ascension.render.GorgonEyeLayer;
+import net.jelly.exo_ascension.render.GrapplerEyeLayer;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.MobRenderer;
@@ -15,6 +17,7 @@ public class GrapplerRenderer extends MobRenderer<GrapplerEntity, GrapplerModel>
 
     public GrapplerRenderer(EntityRendererProvider.Context pContext) {
         super(pContext, new GrapplerModel(pContext.bakeLayer(GRAPPLER_LAYER)), 1.0f);
+        this.addLayer(new GrapplerEyeLayer<>(this));
     }
 
     @Override

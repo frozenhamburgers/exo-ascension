@@ -53,7 +53,7 @@ public class InvasionData extends SavedData {
                     .addEnemy(ModEntities.DRONE.get(), 4)
                     .addEnemy(ModEntities.GRAPPLER.get(), 1),
             // stage 4: all three low class enemies
-            new InvasionStage(3, 200, 10, 32.0, 4, 100, 900)
+            new InvasionStage(3, 200, 15, 40.0, 4, 100, 900)
                     .addEnemy(ModEntities.DRONE.get(), 3)
                     .addEnemy(ModEntities.GRAPPLER.get(), 1)
                     .addEnemy(ModEntities.LEECH.get(), 1),
@@ -66,7 +66,7 @@ public class InvasionData extends SavedData {
                     .addEnemy(ModEntities.DRONE.get(), 3)
                     .addEnemy(ModEntities.GORGON.get(), 2),
             // stage 7: final stage
-            new InvasionStage(6, 250, 10, 32.0, 5, 200, 300)
+            new InvasionStage(6, 250, 20, 50.0, 5, 200, 300)
                     .addEnemy(ModEntities.DRONE.get(), 5)
                     .addEnemy(ModEntities.GRAPPLER.get(), 1)
                     .addEnemy(ModEntities.LEECH.get(), 2)

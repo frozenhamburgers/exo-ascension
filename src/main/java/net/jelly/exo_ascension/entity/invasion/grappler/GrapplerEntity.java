@@ -61,7 +61,7 @@ public class GrapplerEntity extends FlyingMob implements ProceduralAnimatable, I
 
     public static AttributeSupplier.Builder createAttributes() {
         return Animal.createLivingAttributes()
-                .add(Attributes.MAX_HEALTH, 20D)
+                .add(Attributes.MAX_HEALTH, 25D)
                 .add(Attributes.FOLLOW_RANGE, 80D)
                 .add(Attributes.ARMOR, 8.0f)
                 .add(Attributes.ARMOR_TOUGHNESS, 2.0f)
@@ -115,7 +115,7 @@ public class GrapplerEntity extends FlyingMob implements ProceduralAnimatable, I
             Vec3 direction = Vec3.directionFromRotation(0, this.yBodyRot);
             Vec3 legRoot = this.position()
                     .add(direction.cross(new Vec3(0, 1, 0)).normalize().scale(10/16f*bodySide))
-                    .add(new Vec3(0, 0.75, 0));
+                    .add(new Vec3(0, 0.9, 0));
             legAnimator.setRoot(legRoot);
 
             if(this.position().distanceTo(targetPos) > 3) {
