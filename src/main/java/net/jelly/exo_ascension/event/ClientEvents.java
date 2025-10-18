@@ -6,8 +6,8 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import net.jelly.exo_ascension.ExoAscensionMod;
 
-import net.jelly.exo_ascension.global.PollutionHandler;
-import net.jelly.exo_ascension.global.RedstoneIndexData;
+import net.jelly.exo_ascension.global.pollution.PollutionHandler;
+import net.jelly.exo_ascension.global.pollution.RedstoneIndexData;
 import net.jelly.exo_ascension.post_processing.RedTintFx;
 import net.jelly.exo_ascension.post_processing.RedTintProcessor;
 import net.minecraft.client.Minecraft;

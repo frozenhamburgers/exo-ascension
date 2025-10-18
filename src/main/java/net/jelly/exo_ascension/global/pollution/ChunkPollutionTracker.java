@@ -1,4 +1,4 @@
-package net.jelly.exo_ascension.global;
+package net.jelly.exo_ascension.global.pollution;
 
 import net.minecraft.server.level.ServerLevel;
 
