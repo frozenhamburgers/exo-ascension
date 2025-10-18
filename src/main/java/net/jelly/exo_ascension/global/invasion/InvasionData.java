@@ -42,14 +42,14 @@ public class InvasionData extends SavedData {
     // list of stages
     public static final List<InvasionStage> STAGES = List.of(
             // stage 1: just drones
-            new InvasionStage(0, 150, 18, 26.0, 2, 10, 300)
+            new InvasionStage(0, 100, 18, 26.0, 2, 10, 300)
                     .addEnemy(ModEntities.DRONE.get(), 1),
             // stage 2: drones and leeches
-            new InvasionStage(1, 200, 10, 32.0, 3, 40, 300)
+            new InvasionStage(1, 150, 10, 32.0, 3, 40, 300)
                     .addEnemy(ModEntities.DRONE.get(), 4)
                     .addEnemy(ModEntities.LEECH.get(), 1),
             // stage 3: drones and grapplers
-            new InvasionStage(2, 200, 10, 32.0, 3, 40, 300)
+            new InvasionStage(2, 150, 10, 32.0, 3, 40, 300)
                     .addEnemy(ModEntities.DRONE.get(), 4)
                     .addEnemy(ModEntities.GRAPPLER.get(), 1),
             // stage 4: all three low class enemies
@@ -58,17 +58,17 @@ public class InvasionData extends SavedData {
                     .addEnemy(ModEntities.GRAPPLER.get(), 1)
                     .addEnemy(ModEntities.LEECH.get(), 1),
             // stage 5: introduce the spider
-            new InvasionStage(4, 250, 10, 32.0, 2, 100, 300)
-                    .addEnemy(ModEntities.DRONE.get(), 3)
+            new InvasionStage(4, 225, 10, 32.0, 3, 100, 300)
+                    .addEnemy(ModEntities.LEECH.get(), 2)
                     .addEnemy(ModEntities.SPIDER.get(), 2),
             // stage 6: introduce the gorgon
-            new InvasionStage(5, 300, 10, 32.0, 2, 100, 300)
+            new InvasionStage(5, 255, 10, 32.0, 3, 100, 300)
                     .addEnemy(ModEntities.DRONE.get(), 3)
                     .addEnemy(ModEntities.GORGON.get(), 2),
             // stage 7: final stage
-            new InvasionStage(6, 200, 10, 32.0, 6, 300, 300)
-                    .addEnemy(ModEntities.DRONE.get(), 10)
-                    .addEnemy(ModEntities.GRAPPLER.get(), 2)
+            new InvasionStage(6, 250, 10, 32.0, 5, 200, 300)
+                    .addEnemy(ModEntities.DRONE.get(), 5)
+                    .addEnemy(ModEntities.GRAPPLER.get(), 1)
                     .addEnemy(ModEntities.LEECH.get(), 2)
                     .addEnemy(ModEntities.SPIDER.get(), 2)
                     .addEnemy(ModEntities.GORGON.get(), 2)

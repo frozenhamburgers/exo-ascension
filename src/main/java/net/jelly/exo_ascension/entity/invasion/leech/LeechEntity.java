@@ -112,7 +112,7 @@ public class LeechEntity extends FlyingMob implements ProceduralAnimatable {
 
     public static AttributeSupplier.Builder createAttributes() {
         return Animal.createLivingAttributes()
-                .add(Attributes.MAX_HEALTH, 45D)
+                .add(Attributes.MAX_HEALTH, 20D)
                 .add(Attributes.FOLLOW_RANGE, 80D)
                 .add(Attributes.ARMOR, 2.0f)
                 .add(Attributes.ARMOR_TOUGHNESS, 0.5f)

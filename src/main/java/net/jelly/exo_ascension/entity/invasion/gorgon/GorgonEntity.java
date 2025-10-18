@@ -76,8 +76,8 @@ public class GorgonEntity extends FlyingMob implements ProceduralAnimatable, IHo
         return Animal.createLivingAttributes()
                         .add(Attributes.MAX_HEALTH, 40D)
                 .add(Attributes.FOLLOW_RANGE, 100D)
-                .add(Attributes.ARMOR, 10.0f)
-                .add(Attributes.ARMOR_TOUGHNESS, 4.0f)
+                .add(Attributes.ARMOR, 4.0f)
+                .add(Attributes.ARMOR_TOUGHNESS, 2.0f)
                 .add(Attributes.KNOCKBACK_RESISTANCE, 0.2f);
     }
 

@@ -61,9 +61,9 @@ public class GrapplerEntity extends FlyingMob implements ProceduralAnimatable, I
 
     public static AttributeSupplier.Builder createAttributes() {
         return Animal.createLivingAttributes()
-                .add(Attributes.MAX_HEALTH, 40D)
+                .add(Attributes.MAX_HEALTH, 20D)
                 .add(Attributes.FOLLOW_RANGE, 80D)
-                .add(Attributes.ARMOR, 6.0f)
+                .add(Attributes.ARMOR, 8.0f)
                 .add(Attributes.ARMOR_TOUGHNESS, 2.0f)
                 .add(Attributes.KNOCKBACK_RESISTANCE, 0.8f);
     }
