@@ -18,6 +18,8 @@ import java.util.*;
 public class PollutionHandler {
     public static final int MAX_POLLUTION = 10000;
     private static ChunkPollutionTracker POLLUTION_TRACKER = new ChunkPollutionTracker();
+    public static final int PISTON_POLLUTION = 10; // # of block updates worth of pollution for a piston extension/retraction
+    public static final int BEACON_POLLUTION = 40; // amount of raw pollution a beacon causes per tick
 
 
     // adds pollution based on redstone updates
@@ -54,14 +56,13 @@ public class PollutionHandler {
             POLLUTION_TRACKER.record(chunkKey, 1);
         }
 
-        public static final float PISTON_POLLUTION = 1f; // # of block updates worth of pollution for a piston extension/retraction
         @SubscribeEvent
         public static void onPistonActivated(PistonEvent.Pre event) {
             if (event.getLevel().isClientSide()) return;
             Level level = (Level) event.getLevel();
             RedstoneIndexData indexData = RedstoneIndexData.get(level.getServer().getLevel(Level.OVERWORLD));
             long chunkKey = level.getChunk(event.getPos()).getPos().toLong();
-            POLLUTION_TRACKER.record(chunkKey, 10);
+            POLLUTION_TRACKER.record(chunkKey, PISTON_POLLUTION);
         }
 
         @SubscribeEvent

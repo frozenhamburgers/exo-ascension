@@ -6,10 +6,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ChunkPollutionTracker {
-    private static final Map<Long, Integer> chunkPollutionMap = new HashMap<>();
     public static final int CHUNK_POLLUTION_CAP = 40; // maximum amount of pollution a chunk can produce in a tick
     public static final float CHUNK_POLLUTION_EXP_DAMP = 0.04f; // exponential dampening for chunk pollution. Higher this value, the less redstone updates per chunk will be needed to reach the chunk pollution cap.
     public static final float REDSTONE_POLLUTION_MULTIPLIER = 1f; // overall multiplier for redstone pollution
+    private static final Map<Long, Integer> chunkPollutionMap = new HashMap<>();
 
     // record # of redstone block updates caused by a chunk
     public static void record(long chunkKey, int amount) {
