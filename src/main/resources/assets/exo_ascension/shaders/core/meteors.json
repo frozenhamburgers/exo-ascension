@@ -1,0 +1,32 @@
+{
+    "blend": {
+        "func": "add",
+        "srcrgb": "srcalpha",
+        "dstrgb": "1-srcalpha"
+    },
+    "vertex": "exo_ascension:meteors",
+    "fragment": "exo_ascension:meteors",
+    "attributes": [
+        "Position",
+        "Color",
+        "UV0",
+        "UV1",
+        "UV2",
+        "Normal"
+    ],
+    "samplers": [
+        { "name": "Sampler0" },
+        { "name": "Sampler1" },
+        { "name": "Sampler2" }
+    ],
+    "uniforms": [
+        { "name": "IViewRotMat", "type": "matrix3x3", "count": 9, "values": [ 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0 ] },
+        { "name": "ProjMat", "type": "matrix4x4", "count": 16, "values": [ 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0 ] },
+        { "name": "TotalTime", "type": "float", "count": 1, "values": [ 0.0 ] },
+        { "name": "MeteorDensity", "type": "float", "count": 1, "values": [ 0.0 ] },
+        { "name": "MeteorBrightness", "type": "float", "count": 1, "values": [ 0.0 ] },
+        { "name": "MeteorLength", "type": "float", "count": 1, "values": [ 0.0 ] },
+        { "name": "MeteorSpeed", "type": "float", "count": 1, "values": [ 0.0 ] },
+        { "name": "MeteorColor", "type": "float", "count": 3, "values": [ 0.0, 0.0, 0.0 ] }
+    ]
+}
