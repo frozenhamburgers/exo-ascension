@@ -4,6 +4,7 @@ import mod.chloeprime.aaaparticles.api.common.AAALevel;
 import mod.chloeprime.aaaparticles.api.common.ParticleEmitterInfo;
 import net.jelly.exo_ascension.ExoAscensionMod;
 import net.jelly.exo_ascension.entity.invasion.drone.DroneEntity;
+import net.jelly.exo_ascension.global.invasion.InvasionData;
 import net.jelly.exo_ascension.utility.ProceduralAnimatable;
 import net.jelly.exo_ascension.utility.FabrikAnimator;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
@@ -17,6 +18,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -38,6 +40,7 @@ import java.util.EnumSet;
 import java.util.List;
 
 public class LeechEntity extends FlyingMob implements ProceduralAnimatable {
+    public static final int DEATH_VALUE = 5;
     private final LeechPartEntity[] allBodyParts;
     private final LeechPartEntity[] allParts;
     public static final int MAX_CHARGE = 30;
@@ -105,6 +108,15 @@ public class LeechEntity extends FlyingMob implements ProceduralAnimatable {
                 leg3Part1, leg3Part2, leg3Part3,
                 leg4Part1, leg4Part2, leg4Part3
         };
+    }
+
+    public static AttributeSupplier.Builder createAttributes() {
+        return Animal.createLivingAttributes()
+                .add(Attributes.MAX_HEALTH, 45D)
+                .add(Attributes.FOLLOW_RANGE, 80D)
+                .add(Attributes.ARMOR, 2.0f)
+                .add(Attributes.ARMOR_TOUGHNESS, 0.5f)
+                .add(Attributes.KNOCKBACK_RESISTANCE, 0.1f);
     }
 
     @Override
@@ -201,17 +213,6 @@ public class LeechEntity extends FlyingMob implements ProceduralAnimatable {
         else {
             laserTimer = 0;
         }
-    }
-
-
-    public static AttributeSupplier.Builder createAttributes() {
-        return Animal.createLivingAttributes()
-                .add(Attributes.MAX_HEALTH, 20D)
-                .add(Attributes.FOLLOW_RANGE, 24D)
-                .add(Attributes.MOVEMENT_SPEED, 0.25D)
-                .add(Attributes.ARMOR_TOUGHNESS, 0.1f)
-                .add(Attributes.ATTACK_KNOCKBACK, 0.5f)
-                .add(Attributes.ATTACK_DAMAGE, 2f);
     }
 
     @Override
@@ -569,6 +570,13 @@ public class LeechEntity extends FlyingMob implements ProceduralAnimatable {
     public void incrementCharge() {
         int charge = getCharge();
         if(charge < MAX_CHARGE) setCharge(charge+1);
+    }
+
+    @Override
+    public void die(DamageSource pDamageSource) {
+        InvasionData data = InvasionData.get(this.getServer().getLevel(Level.OVERWORLD));
+        data.addProgress(DEATH_VALUE);
+        super.die(pDamageSource);
     }
 
 }

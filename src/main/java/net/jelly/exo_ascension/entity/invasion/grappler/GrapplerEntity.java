@@ -4,6 +4,7 @@ import net.jelly.exo_ascension.entity.goals.MoveTowardTargetGoal;
 import net.jelly.exo_ascension.entity.goals.HoverGoal;
 import net.jelly.exo_ascension.entity.goals.IHoverEntity;
 import net.jelly.exo_ascension.entity.invasion.drone.DroneEntity;
+import net.jelly.exo_ascension.global.invasion.InvasionData;
 import net.jelly.exo_ascension.utility.FabrikAnimator;
 import net.jelly.exo_ascension.utility.ProceduralAnimatable;
 import net.minecraft.core.BlockPos;
@@ -29,6 +30,7 @@ import org.joml.Vector3f;
 import java.util.ArrayList;
 
 public class GrapplerEntity extends FlyingMob implements ProceduralAnimatable, IHoverEntity {
+    public static final int DEATH_VALUE = 5;
     private final GrapplerPartEntity[] allParts;
     FabrikAnimator[] legAnimators = new FabrikAnimator[2];
     private static final EntityDataAccessor<Vector3f> TARGET_POS = SynchedEntityData.defineId(GrapplerEntity.class, EntityDataSerializers.VECTOR3);
@@ -55,6 +57,15 @@ public class GrapplerEntity extends FlyingMob implements ProceduralAnimatable, I
         this.goalSelector.addGoal(2, new MoveTowardTargetGoal(this, 3, 0.85f, 0.065f));
         this.goalSelector.addGoal(3, new HoverGoal(this, 1.5f, 0.1f, true, 0));
         this.goalSelector.addGoal(4, new RandomLookAroundGoal(this));
+    }
+
+    public static AttributeSupplier.Builder createAttributes() {
+        return Animal.createLivingAttributes()
+                .add(Attributes.MAX_HEALTH, 40D)
+                .add(Attributes.FOLLOW_RANGE, 80D)
+                .add(Attributes.ARMOR, 6.0f)
+                .add(Attributes.ARMOR_TOUGHNESS, 2.0f)
+                .add(Attributes.KNOCKBACK_RESISTANCE, 0.8f);
     }
 
     @Override
@@ -158,18 +169,6 @@ public class GrapplerEntity extends FlyingMob implements ProceduralAnimatable, I
         tickMultipart();
     }
 
-
-    public static AttributeSupplier.Builder createAttributes() {
-        return Animal.createLivingAttributes()
-                .add(Attributes.MAX_HEALTH, 20D)
-                .add(Attributes.KNOCKBACK_RESISTANCE, 100)
-                .add(Attributes.FOLLOW_RANGE, 80D)
-                .add(Attributes.MOVEMENT_SPEED, 0.25D)
-                .add(Attributes.ARMOR_TOUGHNESS, 0.1f)
-                .add(Attributes.ATTACK_KNOCKBACK, 0.5f)
-                .add(Attributes.ATTACK_DAMAGE, 2f);
-    }
-
     @Override
     public boolean hurt(DamageSource pSource, float pAmount) {
         System.out.println("ouch: " + pAmount + ", " + (this.level().isClientSide ? "client" : "server"));
@@ -193,5 +192,12 @@ public class GrapplerEntity extends FlyingMob implements ProceduralAnimatable, I
     protected void defineSynchedData() {
         super.defineSynchedData();
         this.entityData.define(TARGET_POS, new Vector3f(0,0,0));
+    }
+
+    @Override
+    public void die(DamageSource pDamageSource) {
+        InvasionData data = InvasionData.get(this.getServer().getLevel(Level.OVERWORLD));
+        data.addProgress(DEATH_VALUE);
+        super.die(pDamageSource);
     }
 }

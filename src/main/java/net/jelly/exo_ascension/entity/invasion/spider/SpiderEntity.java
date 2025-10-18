@@ -3,6 +3,7 @@ package net.jelly.exo_ascension.entity.invasion.spider;
 import net.jelly.exo_ascension.entity.goals.IHoverEntity;
 import net.jelly.exo_ascension.entity.goals.spider.SpiderMoveTowardTargetGoal;
 import net.jelly.exo_ascension.entity.invasion.drone.DroneEntity;
+import net.jelly.exo_ascension.global.invasion.InvasionData;
 import net.jelly.exo_ascension.utility.FabrikAnimator;
 import net.jelly.exo_ascension.utility.ProceduralAnimatable;
 import net.minecraft.core.BlockPos;
@@ -27,6 +28,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 
 public class SpiderEntity extends FlyingMob implements ProceduralAnimatable, IHoverEntity {
+    public static final int DEATH_VALUE = 7;
     private final SpiderPartEntity[] allParts;
     FabrikAnimator[] legAnimators = new FabrikAnimator[4];
     Vec3[] restPos = new Vec3[4];
@@ -67,6 +69,15 @@ public class SpiderEntity extends FlyingMob implements ProceduralAnimatable, IHo
         this.goalSelector.addGoal(0, new NearestAttackableTargetGoal<>(this, Player.class, false));
         this.goalSelector.addGoal(2, new SpiderMoveTowardTargetGoal(this, 2, 0.15f, 0.035f));
         this.goalSelector.addGoal(4, new RandomLookAroundGoal(this));
+    }
+
+    public static AttributeSupplier.Builder createAttributes() {
+        return Animal.createLivingAttributes()
+                .add(Attributes.MAX_HEALTH, 60D)
+                .add(Attributes.FOLLOW_RANGE, 80D)
+                .add(Attributes.ARMOR, 8.0f)
+                .add(Attributes.ARMOR_TOUGHNESS, 3.0f)
+                .add(Attributes.KNOCKBACK_RESISTANCE, 0.6f);
     }
 
     @Override
@@ -172,17 +183,6 @@ public class SpiderEntity extends FlyingMob implements ProceduralAnimatable, IHo
     }
 
 
-    public static AttributeSupplier.Builder createAttributes() {
-        return Animal.createLivingAttributes()
-                .add(Attributes.MAX_HEALTH, 20D)
-                .add(Attributes.KNOCKBACK_RESISTANCE, 100)
-                .add(Attributes.FOLLOW_RANGE, 80D)
-                .add(Attributes.MOVEMENT_SPEED, 0.25D)
-                .add(Attributes.ARMOR_TOUGHNESS, 0.1f)
-                .add(Attributes.ATTACK_KNOCKBACK, 0.5f)
-                .add(Attributes.ATTACK_DAMAGE, 2f);
-    }
-
     @Override
     public boolean hurt(DamageSource pSource, float pAmount) {
         System.out.println("ouch: " + pAmount + ", " + (this.level().isClientSide ? "client" : "server"));
@@ -235,5 +235,12 @@ public class SpiderEntity extends FlyingMob implements ProceduralAnimatable, IHo
         this.entityData.define(GROUND_POS_2, 0);
         this.entityData.define(GROUND_POS_3, 0);
         this.entityData.define(GROUND_POS_4, 0);
+    }
+
+    @Override
+    public void die(DamageSource pDamageSource) {
+        InvasionData data = InvasionData.get(this.getServer().getLevel(Level.OVERWORLD));
+        data.addProgress(DEATH_VALUE);
+        super.die(pDamageSource);
     }
 }

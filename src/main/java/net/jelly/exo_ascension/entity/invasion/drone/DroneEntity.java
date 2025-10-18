@@ -4,7 +4,9 @@ import net.jelly.exo_ascension.entity.goals.MoveTowardTargetGoal;
 import net.jelly.exo_ascension.entity.goals.drone.DroneAttackGoal;
 import net.jelly.exo_ascension.entity.goals.HoverGoal;
 import net.jelly.exo_ascension.entity.goals.IHoverEntity;
+import net.jelly.exo_ascension.global.invasion.InvasionData;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.FlyingMob;
 import net.minecraft.world.entity.Mob;
@@ -19,6 +21,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 
 public class DroneEntity extends FlyingMob implements IHoverEntity {
+    public static final int DEATH_VALUE = 1;
 
     public DroneEntity(EntityType<? extends FlyingMob> pEntityType, Level pLevel) {
         super(pEntityType, pLevel);
@@ -34,12 +37,11 @@ public class DroneEntity extends FlyingMob implements IHoverEntity {
 
     public static AttributeSupplier.Builder createAttributes() {
         return Animal.createLivingAttributes()
-                .add(Attributes.MAX_HEALTH, 20D)
-                .add(Attributes.FOLLOW_RANGE, 80D)
-                .add(Attributes.MOVEMENT_SPEED, 0.25D)
+                .add(Attributes.MAX_HEALTH, 10D)
+                .add(Attributes.FOLLOW_RANGE, 64D)
+                .add(Attributes.ARMOR, 0.5f)
                 .add(Attributes.ARMOR_TOUGHNESS, 0.1f)
-                .add(Attributes.ATTACK_KNOCKBACK, 0.5f)
-                .add(Attributes.ATTACK_DAMAGE, 2f);
+                .add(Attributes.KNOCKBACK_RESISTANCE, 0.0f);
     }
 
     protected BodyRotationControl createBodyControl() {
@@ -75,5 +77,12 @@ public class DroneEntity extends FlyingMob implements IHoverEntity {
         }
 
         return this.getY() - y;
+    }
+
+    @Override
+    public void die(DamageSource pDamageSource) {
+        InvasionData data = InvasionData.get(this.getServer().getLevel(Level.OVERWORLD));
+        data.addProgress(DEATH_VALUE);
+        super.die(pDamageSource);
     }
 }

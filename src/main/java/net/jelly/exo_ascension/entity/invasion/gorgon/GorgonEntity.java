@@ -4,6 +4,7 @@ import net.jelly.exo_ascension.entity.goals.HoverGoal;
 import net.jelly.exo_ascension.entity.goals.IHoverEntity;
 import net.jelly.exo_ascension.entity.goals.MoveTowardTargetGoal;
 import net.jelly.exo_ascension.entity.goals.gorgon.GorgonAttackGoal;
+import net.jelly.exo_ascension.global.invasion.InvasionData;
 import net.jelly.exo_ascension.utility.FabrikAnimator;
 import net.jelly.exo_ascension.utility.ProceduralAnimatable;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
@@ -27,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 public class GorgonEntity extends FlyingMob implements ProceduralAnimatable, IHoverEntity {
+    public static final int DEATH_VALUE = 9;
     private final GorgonPartEntity[] allParts;
     FabrikAnimator[] legAnimators = new FabrikAnimator[6];
     Vec3[] restPos = new Vec3[6];
@@ -68,6 +70,15 @@ public class GorgonEntity extends FlyingMob implements ProceduralAnimatable, IHo
         this.goalSelector.addGoal(2, new MoveTowardTargetGoal(this, 4.5f, 1.2f, 0.1f));
         this.goalSelector.addGoal(3, new HoverGoal(this, 5f, 0.2f, true, 0));
         this.goalSelector.addGoal(4, new RandomLookAroundGoal(this));
+    }
+
+    public static AttributeSupplier.Builder createAttributes() {
+        return Animal.createLivingAttributes()
+                        .add(Attributes.MAX_HEALTH, 70D)
+                .add(Attributes.FOLLOW_RANGE, 100D)
+                .add(Attributes.ARMOR, 10.0f)
+                .add(Attributes.ARMOR_TOUGHNESS, 4.0f)
+                .add(Attributes.KNOCKBACK_RESISTANCE, 0.2f);
     }
 
     @Override
@@ -207,17 +218,6 @@ public class GorgonEntity extends FlyingMob implements ProceduralAnimatable, IHo
     }
 
 
-    public static AttributeSupplier.Builder createAttributes() {
-        return Animal.createLivingAttributes()
-                .add(Attributes.MAX_HEALTH, 20D)
-                .add(Attributes.KNOCKBACK_RESISTANCE, 100)
-                .add(Attributes.FOLLOW_RANGE, 80D)
-                .add(Attributes.MOVEMENT_SPEED, 0.25D)
-                .add(Attributes.ARMOR_TOUGHNESS, 0.1f)
-                .add(Attributes.ATTACK_KNOCKBACK, 0.5f)
-                .add(Attributes.ATTACK_DAMAGE, 2f);
-    }
-
     @Override
     public boolean hurt(DamageSource pSource, float pAmount) {
         System.out.println("ouch: " + pAmount + ", " + (this.level().isClientSide ? "client" : "server"));
@@ -245,5 +245,12 @@ public class GorgonEntity extends FlyingMob implements ProceduralAnimatable, IHo
     @Override
     protected void defineSynchedData() {
         super.defineSynchedData();
+    }
+
+    @Override
+    public void die(DamageSource pDamageSource) {
+        InvasionData data = InvasionData.get(this.getServer().getLevel(Level.OVERWORLD));
+        data.addProgress(DEATH_VALUE);
+        super.die(pDamageSource);
     }
 }
