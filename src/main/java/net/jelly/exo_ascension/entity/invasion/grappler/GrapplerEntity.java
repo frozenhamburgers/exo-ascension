@@ -171,7 +171,6 @@ public class GrapplerEntity extends FlyingMob implements ProceduralAnimatable, I
 
     @Override
     public boolean hurt(DamageSource pSource, float pAmount) {
-        System.out.println("ouch: " + pAmount + ", " + (this.level().isClientSide ? "client" : "server"));
         return super.hurt(pSource, pAmount);
     }
 

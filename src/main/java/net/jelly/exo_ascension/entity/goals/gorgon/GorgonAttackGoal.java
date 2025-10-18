@@ -4,6 +4,7 @@ import mod.chloeprime.aaaparticles.api.common.AAALevel;
 import mod.chloeprime.aaaparticles.api.common.ParticleEmitterInfo;
 import net.jelly.exo_ascension.ExoAscensionMod;
 import net.jelly.exo_ascension.entity.invasion.gorgon.GorgonEntity;
+import net.jelly.exo_ascension.global.invasion.InvasionData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.Goal;
@@ -72,7 +73,6 @@ public class GorgonAttackGoal extends Goal {
     @Override
     public void tick() {
         LivingEntity target = mob.getTarget();
-        System.out.println(timer);
 
         if(!retreat && !mob.attacking) {
             if (mob.distanceTo(mob.getTarget()) < 3)
@@ -109,6 +109,7 @@ public class GorgonAttackGoal extends Goal {
 
                 if (angle <= coneAngle) {
                     // inside cone apply damage or effects
+                    if(InvasionData.isInvasionMob(hit)) continue;
                     hit.hurt(mob.damageSources().mobAttack(mob), 3.0F);
 
                     Vec3 push = lookDir.scale(0.1);

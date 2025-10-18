@@ -1,5 +1,6 @@
 package net.jelly.exo_ascension.entity.invasion.gorgon;
 
+import net.jelly.exo_ascension.global.invasion.InvasionData;
 import net.jelly.exo_ascension.networking.ModMessages;
 import net.jelly.exo_ascension.networking.MultipartEntityMessage;
 import net.jelly.exo_ascension.utility.AbstractPartEntity;
@@ -82,6 +83,7 @@ public class GorgonPartEntity extends AbstractPartEntity<GorgonEntity> {
 
             for (LivingEntity target : targets) {
                 if (this.distanceTo(target) < damageRadius + 0.5) {
+                    if(InvasionData.isInvasionMob(target)) continue;
                     target.hurt(this.damageSources().mobAttack(this.getParent()), 5.0f); // damage amount adjustable
                 }
             }

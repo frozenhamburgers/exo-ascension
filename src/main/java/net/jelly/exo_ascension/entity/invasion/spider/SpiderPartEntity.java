@@ -1,5 +1,6 @@
 package net.jelly.exo_ascension.entity.invasion.spider;
 
+import net.jelly.exo_ascension.global.invasion.InvasionData;
 import net.jelly.exo_ascension.networking.ModMessages;
 import net.jelly.exo_ascension.networking.MultipartEntityMessage;
 import net.jelly.exo_ascension.utility.AbstractPartEntity;
@@ -78,7 +79,8 @@ public class SpiderPartEntity extends AbstractPartEntity<SpiderEntity> {
 
             for (LivingEntity target : targets) {
                 if (this.distanceTo(target) < damageRadius + 0.5) {
-                    target.hurt(this.damageSources().mobAttack(this.getParent()), 4.0f); // damage amount adjustable
+                    if(InvasionData.isInvasionMob(target)) continue;
+                    target.hurt(this.damageSources().mobAttack(this.getParent()), 7.0f); // damage amount adjustable
                     Vec3 push = this.position().subtract(target.position()).normalize().scale(0.3);
                     target.push(push.x, 0.05, push.z);
                 }

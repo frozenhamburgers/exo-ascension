@@ -4,6 +4,7 @@ import mod.chloeprime.aaaparticles.api.common.AAALevel;
 import mod.chloeprime.aaaparticles.api.common.ParticleEmitterInfo;
 import net.jelly.exo_ascension.ExoAscensionMod;
 import net.jelly.exo_ascension.entity.invasion.drone.DroneEntity;
+import net.jelly.exo_ascension.global.invasion.InvasionData;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
@@ -65,8 +66,6 @@ public class DroneAttackGoal extends Goal {
     public void tick() {
         LivingEntity target = mob.getTarget();
         mob.lookAt(EntityAnchorArgument.Anchor.EYES, target.position());
-        System.out.println(timer);
-
         if(mob.distanceTo(mob.getTarget()) < 4) mob.addDeltaMovement(mob.getLookAngle().normalize().scale(-0.025f));
         else if(mob.distanceTo(mob.getTarget()) > 6) mob.addDeltaMovement(mob.getLookAngle().normalize().scale(0.025f));
 
@@ -82,6 +81,7 @@ public class DroneAttackGoal extends Goal {
             for (LivingEntity hit : mob.level().getEntitiesOfClass(LivingEntity.class, aabb, e -> e != mob && e.isAlive())) {
                 var optionalHit = hit.getBoundingBox().clip(start, end);
                 if (optionalHit.isPresent()) {
+                    if(InvasionData.isInvasionMob(hit)) continue;
                     hit.hurt(mob.damageSources().mobAttack(mob), 4.0F);
                     Vec3 push = mob.getLookAngle().scale(0.1);
                     hit.push(push.x, 0.05, push.z);

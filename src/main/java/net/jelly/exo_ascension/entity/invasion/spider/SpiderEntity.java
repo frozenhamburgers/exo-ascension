@@ -73,7 +73,7 @@ public class SpiderEntity extends FlyingMob implements ProceduralAnimatable, IHo
 
     public static AttributeSupplier.Builder createAttributes() {
         return Animal.createLivingAttributes()
-                .add(Attributes.MAX_HEALTH, 60D)
+                .add(Attributes.MAX_HEALTH, 40D)
                 .add(Attributes.FOLLOW_RANGE, 80D)
                 .add(Attributes.ARMOR, 8.0f)
                 .add(Attributes.ARMOR_TOUGHNESS, 3.0f)

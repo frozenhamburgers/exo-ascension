@@ -74,7 +74,7 @@ public class GorgonEntity extends FlyingMob implements ProceduralAnimatable, IHo
 
     public static AttributeSupplier.Builder createAttributes() {
         return Animal.createLivingAttributes()
-                        .add(Attributes.MAX_HEALTH, 70D)
+                        .add(Attributes.MAX_HEALTH, 40D)
                 .add(Attributes.FOLLOW_RANGE, 100D)
                 .add(Attributes.ARMOR, 10.0f)
                 .add(Attributes.ARMOR_TOUGHNESS, 4.0f)
@@ -220,7 +220,6 @@ public class GorgonEntity extends FlyingMob implements ProceduralAnimatable, IHo
 
     @Override
     public boolean hurt(DamageSource pSource, float pAmount) {
-        System.out.println("ouch: " + pAmount + ", " + (this.level().isClientSide ? "client" : "server"));
         return super.hurt(pSource, pAmount);
     }
 

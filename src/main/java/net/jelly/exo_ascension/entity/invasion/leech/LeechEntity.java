@@ -197,6 +197,7 @@ public class LeechEntity extends FlyingMob implements ProceduralAnimatable {
                 for (LivingEntity hit : this.level().getEntitiesOfClass(LivingEntity.class, aabb, e -> e != this && e.isAlive())) {
                     var optionalHit = hit.getBoundingBox().clip(start, end);
                     if (optionalHit.isPresent()) {
+                        if(InvasionData.isInvasionMob(hit)) continue;
                         hit.hurt(this.damageSources().mobAttack(this), 10.0F);
                         Vec3 push = this.getLookAngle().scale(0.1);
                         hit.push(push.x, 0.05, push.z);

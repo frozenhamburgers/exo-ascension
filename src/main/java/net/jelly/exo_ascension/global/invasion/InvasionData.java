@@ -2,6 +2,15 @@ package net.jelly.exo_ascension.global.invasion;
 
 import net.jelly.exo_ascension.ExoAscensionMod;
 import net.jelly.exo_ascension.entity.ModEntities;
+import net.jelly.exo_ascension.entity.invasion.drone.DroneEntity;
+import net.jelly.exo_ascension.entity.invasion.gorgon.GorgonEntity;
+import net.jelly.exo_ascension.entity.invasion.gorgon.GorgonPartEntity;
+import net.jelly.exo_ascension.entity.invasion.grappler.GrapplerEntity;
+import net.jelly.exo_ascension.entity.invasion.grappler.GrapplerPartEntity;
+import net.jelly.exo_ascension.entity.invasion.leech.LeechEntity;
+import net.jelly.exo_ascension.entity.invasion.leech.LeechPartEntity;
+import net.jelly.exo_ascension.entity.invasion.spider.SpiderEntity;
+import net.jelly.exo_ascension.entity.invasion.spider.SpiderPartEntity;
 import net.jelly.exo_ascension.global.pollution.RedstoneIndexData;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -9,7 +18,9 @@ import net.minecraft.server.level.ServerBossEvent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.BossEvent;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.saveddata.SavedData;
@@ -30,12 +41,38 @@ public class InvasionData extends SavedData {
 
     // list of stages
     public static final List<InvasionStage> STAGES = List.of(
+            // stage 1: just drones
             new InvasionStage(0, 150, 18, 26.0, 2, 10, 300)
                     .addEnemy(ModEntities.DRONE.get(), 1),
-
-            new InvasionStage(1, 200, 10, 32.0, 3, 20, 300)
+            // stage 2: drones and leeches
+            new InvasionStage(1, 200, 10, 32.0, 3, 40, 300)
                     .addEnemy(ModEntities.DRONE.get(), 4)
-                    .addEnemy(ModEntities.LEECH.get(), 1)
+                    .addEnemy(ModEntities.LEECH.get(), 1),
+            // stage 3: drones and grapplers
+            new InvasionStage(2, 200, 10, 32.0, 3, 40, 300)
+                    .addEnemy(ModEntities.DRONE.get(), 4)
+                    .addEnemy(ModEntities.GRAPPLER.get(), 1),
+            // stage 4: all three low class enemies
+            new InvasionStage(3, 200, 10, 32.0, 4, 100, 900)
+                    .addEnemy(ModEntities.DRONE.get(), 3)
+                    .addEnemy(ModEntities.GRAPPLER.get(), 1)
+                    .addEnemy(ModEntities.LEECH.get(), 1),
+            // stage 5: introduce the spider
+            new InvasionStage(4, 250, 10, 32.0, 2, 100, 300)
+                    .addEnemy(ModEntities.DRONE.get(), 3)
+                    .addEnemy(ModEntities.SPIDER.get(), 2),
+            // stage 6: introduce the gorgon
+            new InvasionStage(5, 300, 10, 32.0, 2, 100, 300)
+                    .addEnemy(ModEntities.DRONE.get(), 3)
+                    .addEnemy(ModEntities.GORGON.get(), 2),
+            // stage 7: final stage
+            new InvasionStage(6, 200, 10, 32.0, 6, 300, 300)
+                    .addEnemy(ModEntities.DRONE.get(), 10)
+                    .addEnemy(ModEntities.GRAPPLER.get(), 2)
+                    .addEnemy(ModEntities.LEECH.get(), 2)
+                    .addEnemy(ModEntities.SPIDER.get(), 2)
+                    .addEnemy(ModEntities.GORGON.get(), 2)
+
     );
 
     public static InvasionData get(ServerLevel level) {
@@ -59,6 +96,8 @@ public class InvasionData extends SavedData {
 
     public void setStage(int newStage) {
         if (this.stage != newStage) {
+            this.restStage = false;
+            this.restStageTime = 0;
             this.stage = newStage;
             this.progress = 0;
             setDirty();
@@ -124,7 +163,7 @@ public class InvasionData extends SavedData {
         public static void blockPlaced(BlockEvent.EntityPlaceEvent event) {
             InvasionData data = InvasionData.get(event.getLevel().getServer().getLevel(Level.OVERWORLD));
             if (event.getPlacedBlock().is(Blocks.AMETHYST_BLOCK))
-                data.setStage(0);
+                data.setStage(data.getStage()+1);
         }
 
     }
@@ -141,6 +180,19 @@ public class InvasionData extends SavedData {
         nbt.putInt("stage", stage);
         nbt.putInt("progress", progress);
         return nbt;
+    }
+
+    public static boolean isInvasionMob(Entity mob) {
+        return (mob instanceof DroneEntity ||
+                mob instanceof LeechEntity ||
+                mob instanceof LeechPartEntity ||
+                mob instanceof GrapplerEntity ||
+                mob instanceof GrapplerPartEntity ||
+                mob instanceof SpiderEntity ||
+                mob instanceof SpiderPartEntity ||
+                mob instanceof GorgonEntity ||
+                mob instanceof GorgonPartEntity);
+
     }
 }
 
