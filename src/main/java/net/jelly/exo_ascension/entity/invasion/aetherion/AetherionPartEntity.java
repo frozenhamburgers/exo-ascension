@@ -14,10 +14,10 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
 
-public class SpiderPartEntity extends AbstractPartEntity<SpiderEntity> {
+public class AetherionPartEntity extends AbstractPartEntity<AetherionBoss> {
     private EntityDimensions size;
 
-    public SpiderPartEntity(SpiderEntity parent, float sizeXZ, float sizeY, float length) {
+    public AetherionPartEntity(AetherionBoss parent, float sizeXZ, float sizeY, float length) {
         super(parent);
         this.size = EntityDimensions.fixed(sizeXZ, sizeY);
         this.refreshDimensions();
@@ -47,11 +47,6 @@ public class SpiderPartEntity extends AbstractPartEntity<SpiderEntity> {
     }
 
     @Override
-    public boolean canBeCollidedWith() {
-        return true;
-    }
-
-    @Override
     public boolean hurt(DamageSource source, float amount) {
         Entity parent = this.getParent();
         if (parent != null) {
@@ -67,24 +62,5 @@ public class SpiderPartEntity extends AbstractPartEntity<SpiderEntity> {
     @Override
     public void tick() {
         super.tick();
-        if (!this.level().isClientSide) {
-            double damageRadius = 0.7; // slightly larger than its hitbox
-
-            // Find nearby living entities
-            List<LivingEntity> targets = this.level().getEntitiesOfClass(
-                    LivingEntity.class,
-                    this.getBoundingBox().inflate(damageRadius),
-                    entity -> entity.isAlive() && !(entity instanceof SpiderEntity) // avoid self-hits or friendly fire
-            );
-
-            for (LivingEntity target : targets) {
-                if (this.distanceTo(target) < damageRadius + 0.5) {
-                    if(InvasionData.isInvasionMob(target)) continue;
-                    target.hurt(this.damageSources().mobAttack(this.getParent()), 7.0f); // damage amount adjustable
-                    Vec3 push = this.position().subtract(target.position()).normalize().scale(0.3);
-                    target.push(push.x, 0.05, push.z);
-                }
-            }
-        }
     }
 }

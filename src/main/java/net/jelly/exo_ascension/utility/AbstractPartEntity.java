@@ -15,18 +15,19 @@ public class AbstractPartEntity<T extends Entity> extends PartEntity<T> {
         this.blocksBuilding = true;
     }
 
+    // FOR POSITIONS: maintain an interface with the raw position, but internally offset by hitbox
     public void setPartPos(Vec3 pos) {
-        setPartPos(pos.x, pos.y, pos.z);
+        setPartPos(pos.x, pos.y - (this.getDimensions(this.getPose()).height/2), pos.z);
     }
 
-    public void setPartPos(double x, double y, double z) {
+    private void setPartPos(double x, double y, double z) {
         newPosition = new Vec3(x,y,z);
     }
 
     @Override
     public Vec3 position() {
-        if(newPosition != null) return newPosition;
-        else return super.position();
+        if(newPosition != null) return newPosition.add(0, (this.getDimensions(this.getPose()).height/2), 0);
+        else return super.position().add(0, (this.getDimensions(this.getPose()).height/2), 0);
     }
 
     // call this after finalizing positions
@@ -42,20 +43,6 @@ public class AbstractPartEntity<T extends Entity> extends PartEntity<T> {
         }
         super.tick();
     }
-
-
-//    @Override
-//    public InteractionResult interact(Player player, InteractionHand hand) {
-//        Entity parent = this.getParent();
-//        if (parent == null) {
-//            return InteractionResult.PASS;
-//        } else {
-//            if (player.level().isClientSide) {
-//                AlexsCaves.sendMSGToServer(new MultipartEntityMessage(parent.getId(), player.getId(), 0, 0));
-//            }
-//            return parent.interact(player, hand);
-//        }
-//    }
 
     @Override
     public boolean save(CompoundTag tag) {

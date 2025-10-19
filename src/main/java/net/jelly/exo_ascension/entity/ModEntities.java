@@ -7,6 +7,9 @@ import net.jelly.exo_ascension.entity.examples.octopus.OctopusRenderer;
 import net.jelly.exo_ascension.entity.examples.worm.WormEntity;
 import net.jelly.exo_ascension.entity.examples.worm.WormModel;
 import net.jelly.exo_ascension.entity.examples.worm.WormRenderer;
+import net.jelly.exo_ascension.entity.invasion.aetherion.AetherionBoss;
+import net.jelly.exo_ascension.entity.invasion.aetherion.AetherionModel;
+import net.jelly.exo_ascension.entity.invasion.aetherion.AetherionRenderer;
 import net.jelly.exo_ascension.entity.invasion.gorgon.GorgonEntity;
 import net.jelly.exo_ascension.entity.invasion.gorgon.GorgonModel;
 import net.jelly.exo_ascension.entity.invasion.gorgon.GorgonRenderer;
@@ -82,6 +85,12 @@ public class ModEntities {
                     .build("gorgon")
     );
 
+    public static final RegistryObject<EntityType<AetherionBoss>> AETHERION = ENTITY_TYPES.register("aetherion", () ->
+            EntityType.Builder.of(AetherionBoss::new, MobCategory.MISC)
+                    .sized(37.5f/16f * AetherionRenderer.MODEL_SCALE,60f/16f * AetherionRenderer.MODEL_SCALE)
+                    .build("aetherion")
+    );
+
     public static void register(IEventBus eventBus) {
         ENTITY_TYPES.register(eventBus);
     }
@@ -101,6 +110,7 @@ public class ModEntities {
             EntityRenderers.register(ModEntities.GRAPPLER.get(), GrapplerRenderer::new);
             EntityRenderers.register(ModEntities.SPIDER.get(), SpiderRenderer::new);
             EntityRenderers.register(ModEntities.GORGON.get(), GorgonRenderer::new);
+            EntityRenderers.register(ModEntities.AETHERION.get(), AetherionRenderer::new);
         }
         @SubscribeEvent
         public static void registerLayer(EntityRenderersEvent.RegisterLayerDefinitions event) {
@@ -112,6 +122,8 @@ public class ModEntities {
             event.registerLayerDefinition(GrapplerRenderer.GRAPPLER_LAYER, GrapplerModel::createBodyLayer);
             event.registerLayerDefinition(SpiderRenderer.SPIDER_LAYER, SpiderModel::createBodyLayer);
             event.registerLayerDefinition(GorgonRenderer.GORGON_LAYER, GorgonModel::createBodyLayer);
+
+            event.registerLayerDefinition(AetherionRenderer.AETHERION_LAYER, AetherionModel::createBodyLayer);
         }
     }
 
@@ -127,6 +139,8 @@ public class ModEntities {
             event.put(ModEntities.GRAPPLER.get(), GrapplerEntity.createAttributes().build());
             event.put(ModEntities.SPIDER.get(), SpiderEntity.createAttributes().build());
             event.put(ModEntities.GORGON.get(), GorgonEntity.createAttributes().build());
+
+            event.put(ModEntities.AETHERION.get(), AetherionBoss.createAttributes().build());
         }
 
     }

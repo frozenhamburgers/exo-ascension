@@ -1,6 +1,7 @@
 package net.jelly.exo_ascension.entity.invasion.aetherion;
 
 import net.jelly.exo_ascension.entity.goals.IHoverEntity;
+import net.jelly.exo_ascension.entity.goals.aetherion.AetherionMoveTowardTargetGoal;
 import net.jelly.exo_ascension.entity.goals.spider.SpiderMoveTowardTargetGoal;
 import net.jelly.exo_ascension.entity.invasion.drone.DroneEntity;
 import net.jelly.exo_ascension.global.invasion.InvasionData;
@@ -27,48 +28,66 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 
-public class SpiderEntity extends FlyingMob implements ProceduralAnimatable, IHoverEntity {
+public class AetherionBoss extends FlyingMob implements ProceduralAnimatable, IHoverEntity {
     public static final int DEATH_VALUE = 7;
-    private final SpiderPartEntity[] allParts;
-    FabrikAnimator[] legAnimators = new FabrikAnimator[4];
+    private final AetherionPartEntity[] allParts;
+    FabrikAnimator[] armAnimators = new FabrikAnimator[4];
     Vec3[] restPos = new Vec3[4];
-    private static final EntityDataAccessor<Integer> GROUND_POS_1 = SynchedEntityData.defineId(SpiderEntity.class, EntityDataSerializers.INT);
-    private static final EntityDataAccessor<Integer> GROUND_POS_2 = SynchedEntityData.defineId(SpiderEntity.class, EntityDataSerializers.INT);
-    private static final EntityDataAccessor<Integer> GROUND_POS_3 = SynchedEntityData.defineId(SpiderEntity.class, EntityDataSerializers.INT);
-    private static final EntityDataAccessor<Integer> GROUND_POS_4 = SynchedEntityData.defineId(SpiderEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> GROUND_POS_1 = SynchedEntityData.defineId(AetherionBoss.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> GROUND_POS_2 = SynchedEntityData.defineId(AetherionBoss.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> GROUND_POS_3 = SynchedEntityData.defineId(AetherionBoss.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> GROUND_POS_4 = SynchedEntityData.defineId(AetherionBoss.class, EntityDataSerializers.INT);
 
-    private SpiderPartEntity[] createLeg() {
-        SpiderPartEntity legPart1 = new SpiderPartEntity(this, 16f/16, 16f/16, 20f/16);
-        SpiderPartEntity legPart2 = new SpiderPartEntity(this, 12f/16, 12f/16, 18f/16);
-        SpiderPartEntity legPart3 = new SpiderPartEntity(this, 12f/16, 12f/16, 18f/16);
-        SpiderPartEntity legPart4 = new SpiderPartEntity(this, 12f/16, 12f/16, 18f/16);
-        SpiderPartEntity[] parts  = new SpiderPartEntity[]
+    private AetherionPartEntity[] createLeg() {
+        AetherionPartEntity legPart1 = new AetherionPartEntity(this, 16f/16, 16f/16, 20f/16);
+        AetherionPartEntity legPart2 = new AetherionPartEntity(this, 12f/16, 12f/16, 18f/16);
+        AetherionPartEntity legPart3 = new AetherionPartEntity(this, 12f/16, 12f/16, 18f/16);
+        AetherionPartEntity legPart4 = new AetherionPartEntity(this, 12f/16, 12f/16, 18f/16);
+        AetherionPartEntity[] parts  = new AetherionPartEntity[]
                 {legPart1, legPart2, legPart3, legPart4};
         return parts;
     }
 
-    public SpiderEntity(EntityType entityType, Level level) {
+    public AetherionBoss(EntityType entityType, Level level) {
         super(entityType, level);
-        SpiderPartEntity[] leg1 = createLeg();
-        legAnimators[0] = new FabrikAnimator(this, leg1);
-        SpiderPartEntity[] leg2 = createLeg();
-        legAnimators[1] = new FabrikAnimator(this, leg2);
-        SpiderPartEntity[] leg3 = createLeg();
-        legAnimators[2] = new FabrikAnimator(this, leg3);
-        SpiderPartEntity[] leg4 = createLeg();
-        legAnimators[3] = new FabrikAnimator(this, leg4);
-        allParts = new SpiderPartEntity[]
-                {leg1[0], leg1[1], leg1[2], leg1[3],
-                        leg2[0], leg2[1], leg2[2], leg2[3],
-                        leg3[0], leg3[1], leg3[2], leg3[3],
-                        leg4[0], leg4[1], leg4[2], leg4[3]};
+        float scale = AetherionRenderer.MODEL_SCALE;
+
+        AetherionPartEntity specialArm11 = new AetherionPartEntity(this, 16f/16, 16f/16, scale*37f/16);
+        AetherionPartEntity specialArm12 = new AetherionPartEntity(this, 12f/16, 12f/16, scale*37f/16);
+        AetherionPartEntity specialArm13 = new AetherionPartEntity(this, scale*37f/16, scale*37f/16, scale*37f/16);
+        armAnimators[0] = new FabrikAnimator(this, new AetherionPartEntity[]
+                {specialArm11, specialArm12, specialArm13});
+        AetherionPartEntity laserArm11 = new AetherionPartEntity(this, 16f/16, 16f/16, scale*30f/16);
+        AetherionPartEntity laserArm12 = new AetherionPartEntity(this, 12f/16, 12f/16, scale*30f/16);
+        AetherionPartEntity laserArm13 = new AetherionPartEntity(this, 12f/16, 12f/16, scale*37f/16);
+        AetherionPartEntity laserArm14 = new AetherionPartEntity(this, scale*37f/16, scale*37f/16, scale*37f/16);
+        armAnimators[1] = new FabrikAnimator(this, new AetherionPartEntity[]
+                {laserArm11, laserArm12, laserArm13, laserArm14});
+        AetherionPartEntity specialArm21 = new AetherionPartEntity(this, 16f/16, 16f/16, scale*37f/16);
+        AetherionPartEntity specialArm22 = new AetherionPartEntity(this, 12f/16, 12f/16, scale*37f/16);
+        AetherionPartEntity specialArm23 = new AetherionPartEntity(this, scale*37f/16, scale*37f/16, scale*37f/16);
+        armAnimators[2] = new FabrikAnimator(this, new AetherionPartEntity[]
+                {specialArm21, specialArm22, specialArm23});
+        AetherionPartEntity laserArm21 = new AetherionPartEntity(this, 16f/16, 16f/16, scale*30f/16);
+        AetherionPartEntity laserArm22 = new AetherionPartEntity(this, 12f/16, 12f/16, scale*30f/16);
+        AetherionPartEntity laserArm23 = new AetherionPartEntity(this, 12f/16, 12f/16, scale*37f/16);
+        AetherionPartEntity laserArm24 = new AetherionPartEntity(this, scale*37f/16, scale*37f/16, scale*37f/16);
+        armAnimators[3] = new FabrikAnimator(this, new AetherionPartEntity[]
+                {laserArm21, laserArm22, laserArm23, laserArm24});
+
+        allParts = new AetherionPartEntity[]
+                {specialArm11, specialArm12, specialArm13,
+                        laserArm11, laserArm12, laserArm13, laserArm14,
+                        specialArm21, specialArm22, specialArm23,
+                        laserArm21, laserArm22, laserArm23, laserArm24
+                };
 
         this.lookControl = new DroneEntity.DroneLookControl(this);
 
         // goals
         this.goalSelector.addGoal(0, new NearestAttackableTargetGoal<>(this, Player.class, false));
-        this.goalSelector.addGoal(2, new SpiderMoveTowardTargetGoal(this, 2, 0.15f, 0.035f));
-        this.goalSelector.addGoal(4, new RandomLookAroundGoal(this));
+        this.goalSelector.addGoal(2, new AetherionMoveTowardTargetGoal(this, 2, 0.15f, 0.035f));
+//        this.goalSelector.addGoal(4, new RandomLookAroundGoal(this));
     }
 
     public static AttributeSupplier.Builder createAttributes() {
@@ -83,10 +102,10 @@ public class SpiderEntity extends FlyingMob implements ProceduralAnimatable, IHo
     @Override
     public ArrayList<FabrikAnimator> getAnimators() {
         ArrayList<FabrikAnimator> animators = new ArrayList<>();
-        animators.add(legAnimators[0]);
-        animators.add(legAnimators[1]);
-        animators.add(legAnimators[2]);
-        animators.add(legAnimators[3]);
+        animators.add(armAnimators[0]);
+        animators.add(armAnimators[1]);
+        animators.add(armAnimators[2]);
+        animators.add(armAnimators[3]);
         return animators;
     }
     @Override
@@ -108,79 +127,103 @@ public class SpiderEntity extends FlyingMob implements ProceduralAnimatable, IHo
         }
     }
 
+    @Override
     public void tick() {
         super.tick();
 
-        if(this.getGroundDistance() > 2.5) {
-            this.addDeltaMovement(new Vec3(0, -0.05f, 0));;
-        }
+        float scale = AetherionRenderer.MODEL_SCALE;
 
-        if (this.getGroundDistance() < 2.25f) {
-            this.addDeltaMovement(new Vec3(0, 0.05f, 0));
-        }
+        // Apply gentle hover damping
+        if (this.getGroundDistance() > 20) this.addDeltaMovement(new Vec3(0, -0.1f, 0));
+        if (this.getGroundDistance() < 10) this.addDeltaMovement(new Vec3(0, 0.05f, 0));
+
+        // Extract orientation vectors
+        Vec3 forward = Vec3.directionFromRotation(this.xRotO, this.yBodyRot).normalize();
+        Vec3 right = forward.cross(new Vec3(0, 1, 0)).normalize();
+        Vec3 up = right.cross(forward).normalize();
+
+        System.out.println(up);
 
         for (int i = 0; i < 4; i++) {
-            FabrikAnimator legAnimator = legAnimators[i];
+            FabrikAnimator arm = armAnimators[i];
 
-            // forward/back and left/right base offsets (in local body space)
-            double forwardRootOffset = (i < 2) ? 0.6 : -0.6;  // front/back
-            double sideRootOffset = (i % 2 == 0) ? -0.6 : 0.6; // left/right
+//            arm.setFabrikTarget(this.position().add(0,100,0));
+            int side = (i < 2) ? -1 : 1; // left (-1), right (+1)
 
-            double forwardRestOffset = (i < 2) ? 2.6 : -1.6;  // front/back
-            double sideRestOffset = (i % 2 == 0) ? -1.0 : 1.0; // left/right
+            boolean isSpecial = (i == 0 || i == 2); // indices 0, 2 = short lower special arms
 
-            Vec3 forward = Vec3.directionFromRotation(0, this.yBodyRot).normalize();
-            Vec3 right = forward.cross(new Vec3(0, 1, 0)).normalize();
+            // --- Local-space root positions (scaled) ---
+            Vec3 localRoot = isSpecial
+//                    ? new Vec3(-19f / 16f * side, 29f / 16f, 0f / 16f)
+                    ? new Vec3(19f / 16f * side, 16f / 16f, -0f / 16f)
+                    : new Vec3(19f / 16f * side, 32f / 16f, 4f / 16f);
+            localRoot = localRoot.scale(scale);
 
-            // compute unique leg root per limb
-            Vec3 legRoot = this.position()
-                    .add(forward.scale(forwardRootOffset))
-                    .add(right.scale(sideRootOffset))
-                    .add(new Vec3(0, 0.15, 0));
-            legAnimator.setRoot(legRoot);
+            // --- Convert root to world space ---
+            Vec3 armRoot = this.position()
+                    .add(forward.scale(localRoot.z))
+                    .add(right.scale(localRoot.x))
+                    .add(up.scale(localRoot.y));
 
-            // compute rest position — down and outward a bit
-            Vec3 legRest = this.position()
-                    .add(forward.scale(forwardRestOffset))
-                    .add(right.scale(sideRestOffset))
-                    .add(new Vec3(0, -2.5f, 0));
+            arm.setRoot(armRoot);
 
-            // Probe terrain height at rest X/Z
-            BlockPos restPosXZ = BlockPos.containing(legRest.x, this.getY() + 2, legRest.z);
-            int groundY;
-            if(!this.level().isClientSide) {
-                groundY = (this.level().getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, restPosXZ.getX(), restPosXZ.getZ()));
-                setLegGroundY(i, groundY);
-            }
-            else groundY = getLegGroundY(i); // heightmap is inverted on client
+            // --- Define rest position offset in local space ---
+            Vec3 localRest = isSpecial
+                    ? new Vec3(45f / 16f * side, -32f / 16f, 40f / 16f)
+                    : new Vec3(45f / 16f * side, 60f / 16f, 30f / 16f);
+            localRest = localRest.scale(scale);
 
-            // Clamp adjustment to prevent extreme stretching
-            double baseY = this.position().y;
-            if (Math.abs(groundY - baseY) < 7.0) {
-                legRest = new Vec3(legRest.x, groundY - 0.2, legRest.z);
-            }
-            // step forward
-            if(restPos[i] == null || restPos[i].distanceTo(legRest) > 4) restPos[i] = legRest;
+            // --- Convert rest position to world space ---
+            Vec3 restPos = this.position()
+                    .add(forward.scale(localRest.z))
+                    .add(right.scale(localRest.x))
+                    .add(up.scale(localRest.y));
 
-            Vec3 chainEndPos = legAnimator.chainEndPos();
+            // --- Get chain end position (current end effector) ---
+            Vec3 chainEnd = arm.chainEndPos();
 
-            legAnimator.setFabrikTarget(legRoot.add(forward.scale(forwardRootOffset*10))
-                                        .add(right.scale(sideRootOffset*10)));
-            legAnimator.primeMultipart(); // prime leg in the legs direction
+            // --- PRIME LIMB ---
+            Vec3 localPrime = isSpecial
+                    ? new Vec3(0.2 * side,-0.1,-1)
+                    : new Vec3(0.2 * side,0.1,-1);
+            localPrime = localPrime.normalize().scale(100*scale);
 
-            if (chainEndPos.distanceTo(restPos[i]) > 0.1) {
-                Vec3 toRest = restPos[i].subtract(chainEndPos);
-                legAnimator.setFabrikTarget(
-                        chainEndPos
-                                .add(toRest.normalize().scale(0.25))
-                                .add(toRest.scale(0.1))
-                                .add(toRest.normalize().scale(this.getDeltaMovement().dot(toRest)*0.75f))
+            // --- Convert rest position to world space ---
+            Vec3 globalPrime = this.position()
+                    .add(forward.scale(localPrime.z))
+                    .add(right.scale(localPrime.x))
+                    .add(up.scale(localPrime.y));
+
+            // prime arms before setting final target
+            arm.setFabrikTarget(globalPrime);
+            arm.primeMultipart();
+
+
+            // --- Compute relative offset ---
+            Vec3 toRest = restPos.subtract(chainEnd);
+            double horizontalSpeed = new Vec3(this.getDeltaMovement().x, 0, this.getDeltaMovement().z).length();
+            double damping = 1.0 / (horizontalSpeed + 1.0);
+
+            // --- Compute target with velocity-aware smoothing ---
+            if (toRest.length() > 0.1) {
+                arm.setFabrikTarget(
+                        chainEnd
+                                .add(toRest.normalize()
+                                        .scale(this.getDeltaMovement().dot(toRest) * 0.15f * damping))
+                                .add(toRest.scale(0.1 * damping))
+                                .add(toRest.normalize().scale(0.1))
                 );
+            } else {
+                arm.setFabrikTarget(chainEnd);
             }
-            else legAnimator.setFabrikTarget(chainEndPos);
+
         }
+
+        // Apply part transforms
         tickMultipart();
     }
+
+
 
 
     @Override
