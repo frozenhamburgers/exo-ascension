@@ -112,11 +112,11 @@ public class SpiderEntity extends FlyingMob implements ProceduralAnimatable, IHo
         super.tick();
 
         if(this.getGroundDistance() > 2.5) {
-            this.addDeltaMovement(new Vec3(0, -0.05f, 0));;
+            this.addDeltaMovement(new Vec3(0, -0.01f, 0));;
         }
 
         if (this.getGroundDistance() < 2.25f) {
-            this.addDeltaMovement(new Vec3(0, 0.05f, 0));
+            this.addDeltaMovement(new Vec3(0, 0.01f, 0));
         }
 
         for (int i = 0; i < 4; i++) {
@@ -136,14 +136,14 @@ public class SpiderEntity extends FlyingMob implements ProceduralAnimatable, IHo
             Vec3 legRoot = this.position()
                     .add(forward.scale(forwardRootOffset))
                     .add(right.scale(sideRootOffset))
-                    .add(new Vec3(0, 0.15, 0));
+                    .add(new Vec3(0, 0.65, 0));
             legAnimator.setRoot(legRoot);
 
             // compute rest position — down and outward a bit
             Vec3 legRest = this.position()
                     .add(forward.scale(forwardRestOffset))
                     .add(right.scale(sideRestOffset))
-                    .add(new Vec3(0, -2.5f, 0));
+                    .add(new Vec3(0, -2.0f, 0));
 
             // Probe terrain height at rest X/Z
             BlockPos restPosXZ = BlockPos.containing(legRest.x, this.getY() + 2, legRest.z);

@@ -115,7 +115,7 @@ public class GrapplerEntity extends FlyingMob implements ProceduralAnimatable, I
             Vec3 direction = Vec3.directionFromRotation(0, this.yBodyRot);
             Vec3 legRoot = this.position()
                     .add(direction.cross(new Vec3(0, 1, 0)).normalize().scale(10/16f*bodySide))
-                    .add(new Vec3(0, 0.9, 0));
+                    .add(new Vec3(0, 1.4, 0));
             legAnimator.setRoot(legRoot);
 
             if(this.position().distanceTo(targetPos) > 3) {
@@ -123,7 +123,7 @@ public class GrapplerEntity extends FlyingMob implements ProceduralAnimatable, I
                 Vec3 legRest = this.position()
                         .add(direction.cross(new Vec3(0, 1, 0)).normalize().scale(1.25f * bodySide))
                         .add(direction.normalize().scale(1.25f))
-                        .add(new Vec3(0, -1.25, 0))
+                        .add(new Vec3(0, -0.75, 0))
                         .add(new Vec3(0, -1, 0) // "hang" arms while moving
                                 .scale(horizontalSpeed));
                 Vec3 restPos = legRest;
