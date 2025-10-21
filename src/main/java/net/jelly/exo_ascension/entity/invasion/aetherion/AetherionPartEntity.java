@@ -58,9 +58,4 @@ public class AetherionPartEntity extends AbstractPartEntity<AetherionBoss> {
         }
         return true;
     }
-
-    @Override
-    public void tick() {
-        super.tick();
-    }
 }

@@ -42,8 +42,7 @@ public class AetherionMoveTowardTargetGoal extends Goal {
     @Override
     public void tick() {
         LivingEntity target = mob.getTarget();
-        mob.lookAt(target, 180, 180);
-        Vec3 accel = mob.getLookAngle().normalize().scale(ACCEL);
+        Vec3 accel = target.position().subtract(mob.position()).normalize().scale(ACCEL);
         if(mob.getSpeed() <= MAX_SPEED) mob.addDeltaMovement(new Vec3(accel.x, 0, accel.z));
     }
 }

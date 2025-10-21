@@ -7,12 +7,11 @@ import net.minecraft.world.phys.Vec3;
  * Animates multipart entity with FABRIK
  */
 public class FabrikAnimator {
-    private final Entity owner;
-    private final AbstractPartEntity[] allParts;
-    private Vec3 fabrikTarget = Vec3.ZERO;
-    private boolean followRootOnly = false;
-    private Vec3 root;
-    private boolean dirty; // was anything manually updated this tick?
+    protected final Entity owner;
+    protected final AbstractPartEntity[] allParts;
+    protected Vec3 fabrikTarget = Vec3.ZERO;
+    protected boolean followRootOnly = false;
+    protected Vec3 root;
 
     public FabrikAnimator(Entity owner, AbstractPartEntity[] allParts) {
         this.owner = owner;

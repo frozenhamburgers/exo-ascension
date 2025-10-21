@@ -58,6 +58,7 @@ public class DroneEntity extends FlyingMob implements IHoverEntity {
         }
     }
 
+    // constantly synched look vector
     public static class DroneLookControl extends LookControl {
         public DroneLookControl(Mob pMob) {
             super(pMob);

@@ -5,6 +5,7 @@ import net.jelly.exo_ascension.entity.goals.aetherion.AetherionMoveTowardTargetG
 import net.jelly.exo_ascension.entity.goals.spider.SpiderMoveTowardTargetGoal;
 import net.jelly.exo_ascension.entity.invasion.drone.DroneEntity;
 import net.jelly.exo_ascension.global.invasion.InvasionData;
+import net.jelly.exo_ascension.utility.AbstractPartEntity;
 import net.jelly.exo_ascension.utility.FabrikAnimator;
 import net.jelly.exo_ascension.utility.ProceduralAnimatable;
 import net.minecraft.core.BlockPos;
@@ -14,6 +15,7 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.FlyingMob;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
@@ -25,18 +27,17 @@ import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.entity.PartEntity;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3f;
 
 import java.util.ArrayList;
 
 public class AetherionBoss extends FlyingMob implements ProceduralAnimatable, IHoverEntity {
     public static final int DEATH_VALUE = 7;
     private final AetherionPartEntity[] allParts;
-    FabrikAnimator[] armAnimators = new FabrikAnimator[4];
-    Vec3[] restPos = new Vec3[4];
-    private static final EntityDataAccessor<Integer> GROUND_POS_1 = SynchedEntityData.defineId(AetherionBoss.class, EntityDataSerializers.INT);
-    private static final EntityDataAccessor<Integer> GROUND_POS_2 = SynchedEntityData.defineId(AetherionBoss.class, EntityDataSerializers.INT);
-    private static final EntityDataAccessor<Integer> GROUND_POS_3 = SynchedEntityData.defineId(AetherionBoss.class, EntityDataSerializers.INT);
-    private static final EntityDataAccessor<Integer> GROUND_POS_4 = SynchedEntityData.defineId(AetherionBoss.class, EntityDataSerializers.INT);
+    AetherionArmAnimator[] armAnimators = new AetherionArmAnimator[4];
+    private static final EntityDataAccessor<Vector3f> TARGET_POS = SynchedEntityData.defineId(AetherionBoss.class, EntityDataSerializers.VECTOR3);
+    private static final int ATTACK_COOLDOWN = 200;
+    private int nextAttack = ATTACK_COOLDOWN;
 
     private AetherionPartEntity[] createLeg() {
         AetherionPartEntity legPart1 = new AetherionPartEntity(this, 16f/16, 16f/16, 20f/16);
@@ -55,24 +56,24 @@ public class AetherionBoss extends FlyingMob implements ProceduralAnimatable, IH
         AetherionPartEntity specialArm11 = new AetherionPartEntity(this, 16f/16, 16f/16, scale*37f/16);
         AetherionPartEntity specialArm12 = new AetherionPartEntity(this, 12f/16, 12f/16, scale*37f/16);
         AetherionPartEntity specialArm13 = new AetherionPartEntity(this, scale*37f/16, scale*37f/16, scale*37f/16);
-        armAnimators[0] = new FabrikAnimator(this, new AetherionPartEntity[]
+        armAnimators[0] = new AetherionArmAnimator(this, new AetherionPartEntity[]
                 {specialArm11, specialArm12, specialArm13});
         AetherionPartEntity laserArm11 = new AetherionPartEntity(this, 16f/16, 16f/16, scale*30f/16);
         AetherionPartEntity laserArm12 = new AetherionPartEntity(this, 12f/16, 12f/16, scale*30f/16);
         AetherionPartEntity laserArm13 = new AetherionPartEntity(this, 12f/16, 12f/16, scale*37f/16);
         AetherionPartEntity laserArm14 = new AetherionPartEntity(this, scale*37f/16, scale*37f/16, scale*37f/16);
-        armAnimators[1] = new FabrikAnimator(this, new AetherionPartEntity[]
+        armAnimators[1] = new AetherionArmAnimator(this, new AetherionPartEntity[]
                 {laserArm11, laserArm12, laserArm13, laserArm14});
         AetherionPartEntity specialArm21 = new AetherionPartEntity(this, 16f/16, 16f/16, scale*37f/16);
         AetherionPartEntity specialArm22 = new AetherionPartEntity(this, 12f/16, 12f/16, scale*37f/16);
         AetherionPartEntity specialArm23 = new AetherionPartEntity(this, scale*37f/16, scale*37f/16, scale*37f/16);
-        armAnimators[2] = new FabrikAnimator(this, new AetherionPartEntity[]
+        armAnimators[2] = new AetherionArmAnimator(this, new AetherionPartEntity[]
                 {specialArm21, specialArm22, specialArm23});
         AetherionPartEntity laserArm21 = new AetherionPartEntity(this, 16f/16, 16f/16, scale*30f/16);
         AetherionPartEntity laserArm22 = new AetherionPartEntity(this, 12f/16, 12f/16, scale*30f/16);
         AetherionPartEntity laserArm23 = new AetherionPartEntity(this, 12f/16, 12f/16, scale*37f/16);
         AetherionPartEntity laserArm24 = new AetherionPartEntity(this, scale*37f/16, scale*37f/16, scale*37f/16);
-        armAnimators[3] = new FabrikAnimator(this, new AetherionPartEntity[]
+        armAnimators[3] = new AetherionArmAnimator(this, new AetherionPartEntity[]
                 {laserArm21, laserArm22, laserArm23, laserArm24});
 
         allParts = new AetherionPartEntity[]
@@ -87,15 +88,14 @@ public class AetherionBoss extends FlyingMob implements ProceduralAnimatable, IH
         // goals
         this.goalSelector.addGoal(0, new NearestAttackableTargetGoal<>(this, Player.class, false));
         this.goalSelector.addGoal(2, new AetherionMoveTowardTargetGoal(this, 2, 0.15f, 0.035f));
-//        this.goalSelector.addGoal(4, new RandomLookAroundGoal(this));
     }
 
     public static AttributeSupplier.Builder createAttributes() {
         return Animal.createLivingAttributes()
-                .add(Attributes.MAX_HEALTH, 40D)
-                .add(Attributes.FOLLOW_RANGE, 80D)
-                .add(Attributes.ARMOR, 8.0f)
-                .add(Attributes.ARMOR_TOUGHNESS, 3.0f)
+                .add(Attributes.MAX_HEALTH, 200D)
+                .add(Attributes.FOLLOW_RANGE, 200D)
+                .add(Attributes.ARMOR, 20.0f)
+                .add(Attributes.ARMOR_TOUGHNESS, 5.0f)
                 .add(Attributes.KNOCKBACK_RESISTANCE, 0.6f);
     }
 
@@ -131,23 +131,57 @@ public class AetherionBoss extends FlyingMob implements ProceduralAnimatable, IH
     public void tick() {
         super.tick();
 
-        float scale = AetherionRenderer.MODEL_SCALE;
-
         // Apply gentle hover damping
         if (this.getGroundDistance() > 20) this.addDeltaMovement(new Vec3(0, -0.1f, 0));
         if (this.getGroundDistance() < 10) this.addDeltaMovement(new Vec3(0, 0.05f, 0));
 
-        // Extract orientation vectors
+        // maintain synched target posiiton
+        if(this.getTarget() != null) {
+            LivingEntity target = this.getTarget();
+            this.lookAt(target, 9, 9);
+            if (!this.level().isClientSide) this.entityData.set(TARGET_POS, target.position().toVector3f());
+        }
+        else if (!this.level().isClientSide) this.entityData.set(TARGET_POS, null);
+
+        // maintain
+        tickArmControl();
+
+        // common side logic: manual aiming of arms
+        if(entityData.get(TARGET_POS) != null) { // if target exists
+            Vec3 targetPos = new Vec3(entityData.get(TARGET_POS));
+
+            for (AetherionArmAnimator arm : armAnimators) {
+                if(!arm.shooting) continue;
+                arm.aim(targetPos);
+            }
+        }
+        else {
+            for (AetherionArmAnimator arm : armAnimators) arm.setShooting(false);
+        }
+
+        // finalize all arms
+        for (AetherionArmAnimator arm : armAnimators) arm.finalize();
+
+    }
+
+    private void tickArmControl() {
         Vec3 forward = Vec3.directionFromRotation(this.xRotO, this.yBodyRot).normalize();
         Vec3 right = forward.cross(new Vec3(0, 1, 0)).normalize();
         Vec3 up = right.cross(forward).normalize();
-
-        System.out.println(up);
+        float scale = AetherionRenderer.MODEL_SCALE;
 
         for (int i = 0; i < 4; i++) {
-            FabrikAnimator arm = armAnimators[i];
+            AetherionArmAnimator arm = armAnimators[i];
 
-//            arm.setFabrikTarget(this.position().add(0,100,0));
+            // --- IF LIMB IS SHOOTING, MANUALLY RESET END EFFECTOR TO PREVIOUS END POS BEFORE FABRIK
+            if(arm.shooting) {
+                AbstractPartEntity[] parts = arm.getParts();
+                Vec3 preCannonArmPos = parts[parts.length - 2].getEndPos();
+                Vec3 prevDir = arm.getPrevEnd().subtract(preCannonArmPos).normalize();
+                parts[parts.length - 1].setPartDirection(prevDir);
+                parts[parts.length - 1].setRootPos(preCannonArmPos);
+            }
+
             int side = (i < 2) ? -1 : 1; // left (-1), right (+1)
 
             boolean isSpecial = (i == 0 || i == 2); // indices 0, 2 = short lower special arms
@@ -167,7 +201,7 @@ public class AetherionBoss extends FlyingMob implements ProceduralAnimatable, IH
 
             arm.setRoot(armRoot);
 
-            // --- Define rest position offset in local space ---
+                // --- Define rest position offset in local space ---
             Vec3 localRest = isSpecial
                     ? new Vec3(45f / 16f * side, -32f / 16f, 40f / 16f)
                     : new Vec3(45f / 16f * side, 60f / 16f, 30f / 16f);
@@ -209,8 +243,8 @@ public class AetherionBoss extends FlyingMob implements ProceduralAnimatable, IH
                 arm.setFabrikTarget(
                         chainEnd
                                 .add(toRest.normalize()
-                                        .scale(this.getDeltaMovement().dot(toRest) * 0.15f * damping))
-                                .add(toRest.scale(0.1 * damping))
+                                        .scale(this.getDeltaMovement().dot(toRest) * 0.05f * damping))
+                                .add(toRest.scale(0.05 * damping))
                                 .add(toRest.normalize().scale(0.1))
                 );
             } else {
@@ -245,39 +279,24 @@ public class AetherionBoss extends FlyingMob implements ProceduralAnimatable, IH
         return this.getY() - y;
     }
 
-    public void setLegGroundY(int i, int y) {
-        switch (i) {
-            case 1:
-                this.entityData.set(GROUND_POS_1, y);
-            case 2:
-                this.entityData.set(GROUND_POS_2, y);
-            case 3:
-                this.entityData.set(GROUND_POS_3, y);
-            case 4:
-                this.entityData.set(GROUND_POS_4, y);
-        }
-    }
-
-    public int getLegGroundY(int i) {
-        switch (i) {
-            case 1:
-                return this.entityData.get(GROUND_POS_1);
-            case 2:
-                return this.entityData.get(GROUND_POS_2);
-            case 3:
-                return this.entityData.get(GROUND_POS_3);
-            default:
-                return this.entityData.get(GROUND_POS_4);
-        }
-    }
 
     @Override
     protected void defineSynchedData() {
         super.defineSynchedData();
-        this.entityData.define(GROUND_POS_1, 0);
-        this.entityData.define(GROUND_POS_2, 0);
-        this.entityData.define(GROUND_POS_3, 0);
-        this.entityData.define(GROUND_POS_4, 0);
+        this.entityData.define(TARGET_POS, new Vector3f(0,0,0));
+//        this.entityData.define(GROUND_POS_2, 0);
+//        this.entityData.define(GROUND_POS_3, 0);
+//        this.entityData.define(GROUND_POS_4, 0);
+    }
+
+    @Override
+    public boolean isPersistenceRequired() {
+        return true;
+    }
+
+    @Override
+    public boolean fireImmune() {
+        return true;
     }
 
     @Override
