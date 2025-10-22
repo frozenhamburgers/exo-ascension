@@ -6,6 +6,9 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import net.jelly.exo_ascension.ExoAscensionMod;
 
+import net.jelly.exo_ascension.global.invasion.InvasionData;
+import net.jelly.exo_ascension.global.invasion.music.ModSounds;
+import net.jelly.exo_ascension.global.invasion.music.MusicController;
 import net.jelly.exo_ascension.global.pollution.PollutionHandler;
 import net.jelly.exo_ascension.global.pollution.RedstoneIndexData;
 import net.jelly.exo_ascension.post_processing.RedTintFx;
@@ -36,6 +39,7 @@ public class ClientEvents {
     @Mod.EventBusSubscriber(modid = ExoAscensionMod.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
     public static class ForgeClientEvents {
         static int clientRedstoneIndex = 0;
+        static int invasionStage = -1;
         static RedTintFx redTint;
 
         /** TODO: once totalSeconds gets too large, minor visual bugs appear in the shaders **/
@@ -112,8 +116,32 @@ public class ClientEvents {
                 // update redstone index on client
                 RedstoneIndexData indexData = RedstoneIndexData.get(event.level.getServer().getLevel(Level.OVERWORLD));
                 clientRedstoneIndex = indexData.get();
+                InvasionData data = InvasionData.get(event.level.getServer().getLevel(Level.OVERWORLD));
+                invasionStage = data.getStage();
             }
 
+        }
+
+        // MUSIC CONTROL
+        @SubscribeEvent
+        public static void onClientTick(TickEvent.ClientTickEvent event) {
+            if (event.phase == TickEvent.Phase.END) {
+                // invasion music
+                MusicController musicController = MusicController.get();
+                if (invasionStage > -1 && invasionStage < 6) {
+                    if (!musicController.active) musicController.startMusic(ModSounds.INVASION_TRACK.get());
+                    else if (musicController.currentTrack != ModSounds.INVASION_TRACK.get()) musicController.fadeOut();
+                }
+                else if(invasionStage == 6) {
+                    if (!musicController.active) musicController.startMusic(ModSounds.AETHERION_TRACK.get());
+                    else if (musicController.currentTrack != ModSounds.AETHERION_TRACK.get()) musicController.fadeOut();
+                }
+                else {
+                    musicController.fadeOut();
+                }
+
+                musicController.tick();
+            }
         }
 
     }

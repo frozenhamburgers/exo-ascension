@@ -36,13 +36,13 @@ public class InvasionData extends SavedData {
     private int progress = 0;
     protected final ServerBossEvent progressBar = new ServerBossEvent(Component.literal("Stage"),
             BossEvent.BossBarColor.BLUE, BossEvent.BossBarOverlay.PROGRESS);
-    public boolean restStage = false;
+    public boolean restStage = true;
     private int restStageTime = 0;
 
     // list of stages
     public static final List<InvasionStage> STAGES = List.of(
             // stage 1: just drones
-            new InvasionStage(0, 100, 18, 26.0, 2, 10, 300)
+            new InvasionStage(0, 100, 18, 26.0, 2, 10, 1000)
                     .addEnemy(ModEntities.DRONE.get(), 1),
             // stage 2: drones and leeches
             new InvasionStage(1, 150, 10, 32.0, 3, 40, 300)

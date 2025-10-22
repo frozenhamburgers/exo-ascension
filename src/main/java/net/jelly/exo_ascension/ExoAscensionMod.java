@@ -2,6 +2,7 @@ package net.jelly.exo_ascension;
 
 import com.mojang.logging.LogUtils;
 import net.jelly.exo_ascension.entity.ModEntities;
+import net.jelly.exo_ascension.global.invasion.music.ModSounds;
 import net.jelly.exo_ascension.item.ModItems;
 import net.jelly.exo_ascension.networking.ModMessages;
 import net.minecraftforge.common.MinecraftForge;
@@ -38,7 +39,7 @@ public class ExoAscensionMod
         modEventBus.addListener(this::commonSetup);
 
         // register sounds
-//        ModSounds.register(modEventBus);
+        ModSounds.register(modEventBus);
 
         // register particles
 //        ParticleRegistry.register(modEventBus);
