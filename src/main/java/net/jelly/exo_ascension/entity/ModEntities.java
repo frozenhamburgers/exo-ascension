@@ -1,12 +1,6 @@
 package net.jelly.exo_ascension.entity;
 
 import net.jelly.exo_ascension.ExoAscensionMod;
-import net.jelly.exo_ascension.entity.examples.octopus.OctopusEntity;
-import net.jelly.exo_ascension.entity.examples.octopus.OctopusModel;
-import net.jelly.exo_ascension.entity.examples.octopus.OctopusRenderer;
-import net.jelly.exo_ascension.entity.examples.worm.WormEntity;
-import net.jelly.exo_ascension.entity.examples.worm.WormModel;
-import net.jelly.exo_ascension.entity.examples.worm.WormRenderer;
 import net.jelly.exo_ascension.entity.invasion.aetherion.AetherionBoss;
 import net.jelly.exo_ascension.entity.invasion.aetherion.AetherionModel;
 import net.jelly.exo_ascension.entity.invasion.aetherion.AetherionRenderer;
@@ -49,18 +43,6 @@ import net.minecraftforge.registries.RegistryObject;
 public class ModEntities {
     public static final DeferredRegister<EntityType<?>> ENTITY_TYPES =
             DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, ExoAscensionMod.MODID);
-
-    public static final RegistryObject<EntityType<WormEntity>> WORM = ENTITY_TYPES.register("worm", () ->
-            EntityType.Builder.of(WormEntity::new, MobCategory.MISC)
-                    .sized(1.0f,1.0f)
-                    .build("worm")
-    );
-
-    public static final RegistryObject<EntityType<OctopusEntity>> OCTOPUS = ENTITY_TYPES.register("octopus", () ->
-            EntityType.Builder.of(OctopusEntity::new, MobCategory.MISC)
-                    .sized(1.0f,1.0f)
-                    .build("octopus")
-    );
 
     public static final RegistryObject<EntityType<DroneEntity>> DRONE = ENTITY_TYPES.register("drone", () ->
             EntityType.Builder.of(DroneEntity::new, MobCategory.MISC)
@@ -127,9 +109,6 @@ public class ModEntities {
         public static void onClientSetup(FMLClientSetupEvent event)
         {
             // register entity renderers
-            EntityRenderers.register(ModEntities.WORM.get(), WormRenderer::new);
-            EntityRenderers.register(ModEntities.OCTOPUS.get(), OctopusRenderer::new);
-
             EntityRenderers.register(ModEntities.DRONE.get(), DroneRenderer::new);
             EntityRenderers.register(ModEntities.LEECH.get(), LeechRenderer::new);
             EntityRenderers.register(ModEntities.GRAPPLER.get(), GrapplerRenderer::new);
@@ -142,9 +121,6 @@ public class ModEntities {
         }
         @SubscribeEvent
         public static void registerLayer(EntityRenderersEvent.RegisterLayerDefinitions event) {
-            event.registerLayerDefinition(WormRenderer.WORM_LAYER, WormModel::createBodyLayer);
-            event.registerLayerDefinition(OctopusRenderer.OCTOPUS_LAYER, OctopusModel::createBodyLayer);
-
             event.registerLayerDefinition(DroneRenderer.DRONE_LAYER, DroneModel::createBodyLayer);
             event.registerLayerDefinition(LeechRenderer.LEECH_LAYER, LeechModel::createBodyLayer);
             event.registerLayerDefinition(GrapplerRenderer.GRAPPLER_LAYER, GrapplerModel::createBodyLayer);
@@ -159,9 +135,6 @@ public class ModEntities {
     public class ModEventBusEvents {
         @SubscribeEvent
         public static void registerAttributes(EntityAttributeCreationEvent event) {
-            event.put(ModEntities.WORM.get(), WormEntity.createAttributes().build());
-            event.put(ModEntities.OCTOPUS.get(), OctopusEntity.createAttributes().build());
-
             event.put(ModEntities.DRONE.get(), DroneEntity.createAttributes().build());
             event.put(ModEntities.LEECH.get(), LeechEntity.createAttributes().build());
             event.put(ModEntities.GRAPPLER.get(), GrapplerEntity.createAttributes().build());

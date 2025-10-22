@@ -542,7 +542,6 @@ public class LeechEntity extends FlyingMob implements ProceduralAnimatable {
                             AAALevel.addParticle(LeechEntity.this.level(), false, laser);
                             laserPresent = true;
                         }
-                        System.out.println(chargedAttackTimer);
                         chargedAttackTimer++;
                         if(chargedAttackTimer > 60) LeechEntity.this.attackPhase = LeechEntity.AttackPhase.CIRCLE;
                     }

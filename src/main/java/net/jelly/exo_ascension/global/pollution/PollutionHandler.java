@@ -72,24 +72,24 @@ public class PollutionHandler {
         }
 
         // DEBUG
-        @SubscribeEvent
-        public static void blockPlaced(BlockEvent.EntityPlaceEvent event) {
-            RedstoneIndexData indexData = RedstoneIndexData.get(event.getLevel().getServer().getLevel(Level.OVERWORLD));
-//        if(RedstoneIndexData.isTechBlock(event.getPlacedBlock().getBlock()))
-//            RedstoneIndexData.get(event.getLevel().getServer().getLevel(Level.OVERWORLD)).add(1);
-            if (event.getPlacedBlock().is(Blocks.SLIME_BLOCK))
-                RedstoneIndexData.get(event.getLevel().getServer().getLevel(Level.OVERWORLD)).set(0);
-        }
-
-        @SubscribeEvent
-        public static void blockMined(BlockEvent.BreakEvent event) {
-            RedstoneIndexData indexData = RedstoneIndexData.get(event.getLevel().getServer().getLevel(Level.OVERWORLD));
-//        System.out.println(event.getState().getBlock() + " is " + RedstoneIndexData.isTechBlock(event.getState().getBlock()));
-//        if(RedstoneIndexData.isTechBlock(event.getState().getBlock()))
-//            RedstoneIndexData.get(event.getLevel().getServer().getLevel(Level.OVERWORLD)).subtract(1);
-            if (event.getState().is(Blocks.SLIME_BLOCK))
-                RedstoneIndexData.get(event.getLevel().getServer().getLevel(Level.OVERWORLD)).set(MAX_POLLUTION);
-        }
+//        @SubscribeEvent
+//        public static void blockPlaced(BlockEvent.EntityPlaceEvent event) {
+//            RedstoneIndexData indexData = RedstoneIndexData.get(event.getLevel().getServer().getLevel(Level.OVERWORLD));
+////        if(RedstoneIndexData.isTechBlock(event.getPlacedBlock().getBlock()))
+////            RedstoneIndexData.get(event.getLevel().getServer().getLevel(Level.OVERWORLD)).add(1);
+//            if (event.getPlacedBlock().is(Blocks.SLIME_BLOCK))
+//                RedstoneIndexData.get(event.getLevel().getServer().getLevel(Level.OVERWORLD)).set(0);
+//        }
+//
+//        @SubscribeEvent
+//        public static void blockMined(BlockEvent.BreakEvent event) {
+//            RedstoneIndexData indexData = RedstoneIndexData.get(event.getLevel().getServer().getLevel(Level.OVERWORLD));
+////        System.out.println(event.getState().getBlock() + " is " + RedstoneIndexData.isTechBlock(event.getState().getBlock()));
+////        if(RedstoneIndexData.isTechBlock(event.getState().getBlock()))
+////            RedstoneIndexData.get(event.getLevel().getServer().getLevel(Level.OVERWORLD)).subtract(1);
+//            if (event.getState().is(Blocks.SLIME_BLOCK))
+//                RedstoneIndexData.get(event.getLevel().getServer().getLevel(Level.OVERWORLD)).set(MAX_POLLUTION);
+//        }
     }
 
 

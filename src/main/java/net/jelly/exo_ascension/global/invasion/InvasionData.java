@@ -180,7 +180,6 @@ public class InvasionData extends SavedData {
                 ServerLevel level = event.getServer().getLevel(Level.OVERWORLD);
                 ServerPlayer player = level.getRandomPlayer();
                 BlockPos spawnPos = getRandomSpawnPos(level, player, level.getRandom(), 20, 40);
-                System.out.println("trying spawn boss");
                 if(spawnPos != null) {
                     ModEntities.AETHERION.get().spawn(level, spawnPos, MobSpawnType.MOB_SUMMONED);
                     data.bossSpawned = true;
@@ -189,13 +188,13 @@ public class InvasionData extends SavedData {
         }
 
         // DEBUG
-        @SubscribeEvent
-        public static void blockPlaced(BlockEvent.EntityPlaceEvent event) {
-            InvasionData data = InvasionData.get(event.getLevel().getServer().getLevel(Level.OVERWORLD));
-            if (event.getPlacedBlock().is(Blocks.AMETHYST_BLOCK))
-                data.setStage(data.getStage()+1);
-            data.bossSpawned = false;
-        }
+//        @SubscribeEvent
+//        public static void blockPlaced(BlockEvent.EntityPlaceEvent event) {
+//            InvasionData data = InvasionData.get(event.getLevel().getServer().getLevel(Level.OVERWORLD));
+//            if (event.getPlacedBlock().is(Blocks.AMETHYST_BLOCK))
+//                data.setStage(data.getStage()+1);
+//            data.bossSpawned = false;
+//        }
 
     }
 

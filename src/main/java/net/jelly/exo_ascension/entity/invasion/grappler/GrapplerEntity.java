@@ -156,7 +156,6 @@ public class GrapplerEntity extends FlyingMob implements ProceduralAnimatable, I
 
                 // Server-side interaction: pull target slightly toward grappler
                 if (target != null && this.distanceTo(target) < 3) {
-                    System.out.println("PULL");
                     Vec3 pullDir = this.position().subtract(target.position()).normalize();
                     target.addDeltaMovement(pullDir.scale(0.08));
                     target.hurtMarked = true;
