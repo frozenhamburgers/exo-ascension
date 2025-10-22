@@ -4,17 +4,11 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobSpawnType;
-import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.CustomSpawner;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.levelgen.Heightmap;
-import net.minecraft.world.phys.Vec3;
-import org.joml.Vector3f;
 
 import java.util.List;
 
@@ -33,7 +27,8 @@ public class InvasionSpawner implements CustomSpawner {
         if (stageIndex < 0 || stageIndex >= InvasionData.STAGES.size()) return 0;
         InvasionStage stage = InvasionData.STAGES.get(stageIndex);
         if (stage == null) return 0;
-        if (data.restStage) return 0;
+        if (data.stagePrelude) return 0;
+        if (stage.bossStage) return 0;
 
         // if stage changed
         if (lastStageId != stage.getStageId()) {
@@ -83,8 +78,6 @@ public class InvasionSpawner implements CustomSpawner {
                 }
             }
         }
-
-        System.out.println("SStage: " + stageIndex + ", Spawned: " + spawnedTotal);
         return spawnedTotal;
     }
 
@@ -92,7 +85,7 @@ public class InvasionSpawner implements CustomSpawner {
      * Attempts up to 10 times to find a valid spawn position between minDist and maxDist from the player.
      * Returns the bottom-center null if none found.
      */
-    private BlockPos getRandomSpawnPos(ServerLevel level, Player targetPlayer, RandomSource rand, double minDist, double maxDist) {
+    public static BlockPos getRandomSpawnPos(ServerLevel level, Player targetPlayer, RandomSource rand, double minDist, double maxDist) {
         BlockPos candidate = null;
         for (int attempt = 0; attempt < 20; attempt++) {
             // pick random angle and distance

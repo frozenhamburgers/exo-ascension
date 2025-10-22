@@ -79,7 +79,6 @@ public class PollutionHandler {
 //            RedstoneIndexData.get(event.getLevel().getServer().getLevel(Level.OVERWORLD)).add(1);
             if (event.getPlacedBlock().is(Blocks.SLIME_BLOCK))
                 RedstoneIndexData.get(event.getLevel().getServer().getLevel(Level.OVERWORLD)).set(0);
-            System.out.println(indexData.get());
         }
 
         @SubscribeEvent
@@ -90,7 +89,6 @@ public class PollutionHandler {
 //            RedstoneIndexData.get(event.getLevel().getServer().getLevel(Level.OVERWORLD)).subtract(1);
             if (event.getState().is(Blocks.SLIME_BLOCK))
                 RedstoneIndexData.get(event.getLevel().getServer().getLevel(Level.OVERWORLD)).set(MAX_POLLUTION);
-            System.out.println(indexData.get());
         }
     }
 

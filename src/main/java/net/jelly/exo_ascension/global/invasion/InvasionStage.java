@@ -4,7 +4,6 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.EntityType;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 public class InvasionStage {
     private final List<EnemyEntry> enemies = new ArrayList<>();
@@ -14,16 +13,17 @@ public class InvasionStage {
     public final int spawnCount;   // number of enemies to spawn per player per wave
     public final int stageId;
     public final int requiredProgress;
-    public final int restTime;
+    public final int preludeTime;
+    public boolean bossStage = false;
 
-    public InvasionStage(int stageId, int spawnTime, double minDist, double maxDist, int spawnCount, int requiredProgress, int restTime) {
+    public InvasionStage(int stageId, int spawnTime, double minDist, double maxDist, int spawnCount, int requiredProgress, int preludeTime) {
         this.stageId = stageId;
         this.spawnTime = spawnTime;
         this.minDist = minDist;
         this.maxDist = maxDist;
         this.spawnCount = spawnCount;
         this.requiredProgress = requiredProgress;
-        this.restTime = restTime;
+        this.preludeTime = preludeTime;
     }
 
     public InvasionStage addEnemy(EntityType<?> type, int weight) {
@@ -69,6 +69,13 @@ public class InvasionStage {
             this.type = type;
             this.weight = Math.max(1, weight);
         }
+    }
+}
+
+class BossStage extends InvasionStage {
+    public BossStage(int stageId, int requiredProgress, int restTime) {
+        super(stageId, 0, 0, 0, 0, requiredProgress, restTime);
+        this.bossStage = true;
     }
 }
 

@@ -128,11 +128,11 @@ public class ClientEvents {
             if (event.phase == TickEvent.Phase.END) {
                 // invasion music
                 MusicController musicController = MusicController.get();
-                if (invasionStage > -1 && invasionStage < 6) {
+                if (invasionStage > -1 && invasionStage < 7) {
                     if (!musicController.active) musicController.startMusic(ModSounds.INVASION_TRACK.get());
                     else if (musicController.currentTrack != ModSounds.INVASION_TRACK.get()) musicController.fadeOut();
                 }
-                else if(invasionStage == 6) {
+                else if(invasionStage == 7) {
                     if (!musicController.active) musicController.startMusic(ModSounds.AETHERION_TRACK.get());
                     else if (musicController.currentTrack != ModSounds.AETHERION_TRACK.get()) musicController.fadeOut();
                 }

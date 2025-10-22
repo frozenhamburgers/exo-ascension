@@ -29,8 +29,6 @@ public class ChunkPollutionTracker {
         double effective = CHUNK_POLLUTION_CAP * (1 - Math.exp(-CHUNK_POLLUTION_EXP_DAMP * totalRaw));
         total += (int) effective;
 
-        System.out.println("raw pollution + " + totalRaw);
-        System.out.println("pollution + " + (int)(total * REDSTONE_POLLUTION_MULTIPLIER));
         indexData.add((int)(total * REDSTONE_POLLUTION_MULTIPLIER)); // global scaling
         chunkPollutionMap.clear();
     }

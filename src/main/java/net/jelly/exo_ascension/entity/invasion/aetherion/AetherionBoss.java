@@ -4,6 +4,7 @@ import net.jelly.exo_ascension.entity.goals.IHoverEntity;
 import net.jelly.exo_ascension.entity.goals.aetherion.AetherionMoveTowardTargetGoal;
 import net.jelly.exo_ascension.entity.invasion.drone.DroneEntity;
 import net.jelly.exo_ascension.global.invasion.InvasionData;
+import net.jelly.exo_ascension.global.invasion.InvasionStage;
 import net.jelly.exo_ascension.utility.AbstractPartEntity;
 import net.jelly.exo_ascension.utility.FabrikAnimator;
 import net.jelly.exo_ascension.utility.ProceduralAnimatable;
@@ -33,7 +34,6 @@ import org.joml.Vector3f;
 import java.util.ArrayList;
 
 public class AetherionBoss extends FlyingMob implements ProceduralAnimatable, IHoverEntity {
-    public static final int DEATH_VALUE = 7;
     private final AetherionPartEntity[] allParts;
     AetherionArmAnimator[] armAnimators = new AetherionArmAnimator[4];
     private static final EntityDataAccessor<Vector3f> TARGET_POS = SynchedEntityData.defineId(AetherionBoss.class, EntityDataSerializers.VECTOR3);
@@ -277,12 +277,25 @@ public class AetherionBoss extends FlyingMob implements ProceduralAnimatable, IH
 
         // Apply part transforms
         tickMultipart();
+
+        // apply stage progress
+        // update stage progress
+        if(!this.level().isClientSide) {
+            InvasionData data = InvasionData.get(this.getServer().getLevel(Level.OVERWORLD));
+            int stageIndex = data.getStage();
+            if (stageIndex == 7 && !data.stagePrelude) {
+                InvasionStage stage = InvasionData.STAGES.get(stageIndex);
+                data.setProgress((1 - this.getHealth() / this.getMaxHealth()) * stage.requiredProgress);
+            }
+        }
+
     }
 
     private void setDowned() {
         downed = true;
         downedTimer = 0;
         downedDamage = 0;
+        this.setXRot(0);
         this.setInvulnerable(false);
     }
 
@@ -381,10 +394,6 @@ public class AetherionBoss extends FlyingMob implements ProceduralAnimatable, IH
 
     @Override
     public void die(DamageSource pDamageSource) {
-        if(!this.level().isClientSide) {
-            InvasionData data = InvasionData.get(this.getServer().getLevel(Level.OVERWORLD));
-            data.addProgress(DEATH_VALUE);
-        }
         super.die(pDamageSource);
     }
 
