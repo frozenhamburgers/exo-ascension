@@ -206,12 +206,16 @@ public class SpiderEntity extends FlyingMob implements ProceduralAnimatable, IHo
         switch (i) {
             case 1:
                 this.entityData.set(GROUND_POS_1, y);
+                break;
             case 2:
                 this.entityData.set(GROUND_POS_2, y);
+                break;
             case 3:
                 this.entityData.set(GROUND_POS_3, y);
+                break;
             case 4:
                 this.entityData.set(GROUND_POS_4, y);
+                break;
         }
     }
 

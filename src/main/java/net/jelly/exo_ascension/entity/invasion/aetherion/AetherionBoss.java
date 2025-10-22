@@ -8,6 +8,8 @@ import net.jelly.exo_ascension.utility.AbstractPartEntity;
 import net.jelly.exo_ascension.utility.FabrikAnimator;
 import net.jelly.exo_ascension.utility.ProceduralAnimatable;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -37,41 +39,35 @@ public class AetherionBoss extends FlyingMob implements ProceduralAnimatable, IH
     private static final EntityDataAccessor<Vector3f> TARGET_POS = SynchedEntityData.defineId(AetherionBoss.class, EntityDataSerializers.VECTOR3);
     private static final int ATTACK_COOLDOWN = 200;
     private int nextAttack = ATTACK_COOLDOWN;
-
-    private AetherionPartEntity[] createLeg() {
-        AetherionPartEntity legPart1 = new AetherionPartEntity(this, 16f/16, 16f/16, 20f/16);
-        AetherionPartEntity legPart2 = new AetherionPartEntity(this, 12f/16, 12f/16, 18f/16);
-        AetherionPartEntity legPart3 = new AetherionPartEntity(this, 12f/16, 12f/16, 18f/16);
-        AetherionPartEntity legPart4 = new AetherionPartEntity(this, 12f/16, 12f/16, 18f/16);
-        AetherionPartEntity[] parts  = new AetherionPartEntity[]
-                {legPart1, legPart2, legPart3, legPart4};
-        return parts;
-    }
+    private static final EntityDataAccessor<Float> ARM_0_HP = SynchedEntityData.defineId(AetherionBoss.class, EntityDataSerializers.FLOAT);
+    private static final EntityDataAccessor<Float> ARM_1_HP = SynchedEntityData.defineId(AetherionBoss.class, EntityDataSerializers.FLOAT);
+    private static final EntityDataAccessor<Float> ARM_2_HP = SynchedEntityData.defineId(AetherionBoss.class, EntityDataSerializers.FLOAT);
+    private static final EntityDataAccessor<Float> ARM_3_HP = SynchedEntityData.defineId(AetherionBoss.class, EntityDataSerializers.FLOAT);
 
     public AetherionBoss(EntityType entityType, Level level) {
         super(entityType, level);
         float scale = AetherionRenderer.MODEL_SCALE;
 
-        AetherionPartEntity specialArm11 = new AetherionPartEntity(this, 16f/16, 16f/16, scale*37f/16);
-        AetherionPartEntity specialArm12 = new AetherionPartEntity(this, 12f/16, 12f/16, scale*37f/16);
-        AetherionPartEntity specialArm13 = new AetherionPartEntity(this, scale*37f/16, scale*37f/16, scale*37f/16);
+        AetherionPartEntity specialArm11 = new AetherionPartEntity(this, 16f/16, 16f/16, scale*37f/16, 0);
+        AetherionPartEntity specialArm12 = new AetherionPartEntity(this, 12f/16, 12f/16, scale*37f/16, 0);
+        AetherionPartEntity specialArm13 = new AetherionPartEntity(this, scale*37f/16, scale*37f/16, scale*37f/16, 0);
         armAnimators[0] = new AetherionLaserArmAnimator(this, new AetherionPartEntity[]
                 {specialArm11, specialArm12, specialArm13});
-        AetherionPartEntity laserArm11 = new AetherionPartEntity(this, 16f/16, 16f/16, scale*30f/16);
-        AetherionPartEntity laserArm12 = new AetherionPartEntity(this, 12f/16, 12f/16, scale*30f/16);
-        AetherionPartEntity laserArm13 = new AetherionPartEntity(this, 12f/16, 12f/16, scale*37f/16);
-        AetherionPartEntity laserArm14 = new AetherionPartEntity(this, scale*37f/16, scale*37f/16, scale*37f/16);
+        AetherionPartEntity laserArm11 = new AetherionPartEntity(this, 16f/16, 16f/16, scale*30f/16, 1);
+        AetherionPartEntity laserArm12 = new AetherionPartEntity(this, 12f/16, 12f/16, scale*30f/16, 1);
+        AetherionPartEntity laserArm13 = new AetherionPartEntity(this, 12f/16, 12f/16, scale*37f/16, 1);
+        AetherionPartEntity laserArm14 = new AetherionPartEntity(this, scale*37f/16, scale*37f/16, scale*37f/16, 1);
         armAnimators[1] = new AetherionLaserArmAnimator(this, new AetherionPartEntity[]
                 {laserArm11, laserArm12, laserArm13, laserArm14});
-        AetherionPartEntity specialArm21 = new AetherionPartEntity(this, 16f/16, 16f/16, scale*37f/16);
-        AetherionPartEntity specialArm22 = new AetherionPartEntity(this, 12f/16, 12f/16, scale*37f/16);
-        AetherionPartEntity specialArm23 = new AetherionPartEntity(this, scale*37f/16, scale*37f/16, scale*37f/16);
+        AetherionPartEntity specialArm21 = new AetherionPartEntity(this, 16f/16, 16f/16, scale*37f/16, 2);
+        AetherionPartEntity specialArm22 = new AetherionPartEntity(this, 12f/16, 12f/16, scale*37f/16, 2);
+        AetherionPartEntity specialArm23 = new AetherionPartEntity(this, scale*37f/16, scale*37f/16, scale*37f/16, 2);
         armAnimators[2] = new AetherionLaserArmAnimator(this, new AetherionPartEntity[]
                 {specialArm21, specialArm22, specialArm23});
-        AetherionPartEntity laserArm21 = new AetherionPartEntity(this, 16f/16, 16f/16, scale*30f/16);
-        AetherionPartEntity laserArm22 = new AetherionPartEntity(this, 12f/16, 12f/16, scale*30f/16);
-        AetherionPartEntity laserArm23 = new AetherionPartEntity(this, 12f/16, 12f/16, scale*37f/16);
-        AetherionPartEntity laserArm24 = new AetherionPartEntity(this, scale*37f/16, scale*37f/16, scale*37f/16);
+        AetherionPartEntity laserArm21 = new AetherionPartEntity(this, 16f/16, 16f/16, scale*30f/16, 3);
+        AetherionPartEntity laserArm22 = new AetherionPartEntity(this, 12f/16, 12f/16, scale*30f/16, 3);
+        AetherionPartEntity laserArm23 = new AetherionPartEntity(this, 12f/16, 12f/16, scale*37f/16, 3);
+        AetherionPartEntity laserArm24 = new AetherionPartEntity(this, scale*37f/16, scale*37f/16, scale*37f/16, 3);
         armAnimators[3] = new AetherionLaserArmAnimator(this, new AetherionPartEntity[]
                 {laserArm21, laserArm22, laserArm23, laserArm24});
 
@@ -95,7 +91,7 @@ public class AetherionBoss extends FlyingMob implements ProceduralAnimatable, IH
                 .add(Attributes.FOLLOW_RANGE, 200D)
                 .add(Attributes.ARMOR, 20.0f)
                 .add(Attributes.ARMOR_TOUGHNESS, 5.0f)
-                .add(Attributes.KNOCKBACK_RESISTANCE, 0.6f);
+                .add(Attributes.KNOCKBACK_RESISTANCE, 100f);
     }
 
     @Override
@@ -106,24 +102,6 @@ public class AetherionBoss extends FlyingMob implements ProceduralAnimatable, IH
         animators.add(armAnimators[2]);
         animators.add(armAnimators[3]);
         return animators;
-    }
-    @Override
-    public boolean isMultipartEntity() {
-        return true;
-    }
-
-    @Override
-    public @Nullable PartEntity<?>[] getParts() {
-        return allParts;
-    }
-
-    public void remove(RemovalReason removalReason) {
-        super.remove(removalReason);
-        if (allParts != null) {
-            for (PartEntity part : allParts) {
-                part.remove(RemovalReason.KILLED);
-            }
-        }
     }
 
     @Override
@@ -148,6 +126,10 @@ public class AetherionBoss extends FlyingMob implements ProceduralAnimatable, IH
         // common side logic for attacks
         for (int i = 0; i < 4; i++) {
             AetherionArmAnimator arm = armAnimators[i];
+            if(getArmHP(i) <= 0) {
+                arm.setAiming(false);
+                continue;
+            }
 
             if(entityData.get(TARGET_POS) != null) { // if target exists
                 Vec3 targetPos = new Vec3(entityData.get(TARGET_POS));
@@ -183,6 +165,13 @@ public class AetherionBoss extends FlyingMob implements ProceduralAnimatable, IH
 
         for (int i = 0; i < 4; i++) {
             AetherionArmAnimator arm = armAnimators[i];
+
+            // if arm is destroyed
+            if(getArmHP(i) <= 0) {
+                arm.setFollowRootOnly(true);
+                if(arm.chainRoot().y > -150) arm.setRoot(arm.chainRoot().subtract(new Vec3(0,0.25, 0)));
+                continue;
+            }
 
             // --- IF LIMB IS SHOOTING, MANUALLY RESET END EFFECTOR TO PREVIOUS END POS BEFORE FABRIK
             if(arm.getPrevEnd() != null ) {
@@ -268,12 +257,15 @@ public class AetherionBoss extends FlyingMob implements ProceduralAnimatable, IH
         tickMultipart();
     }
 
-
+    public void hurtArm(int index, float amount) {
+        System.out.println("arm " + index + ": ouch!");
+        setArmHP(index, Math.max(getArmHP(index)-amount, 0));
+        System.out.println(getArmHP(index));
+    }
 
 
     @Override
     public boolean hurt(DamageSource pSource, float pAmount) {
-        System.out.println("ouch: " + pAmount + ", " + (this.level().isClientSide ? "client" : "server"));
         return super.hurt(pSource, pAmount);
     }
 
@@ -290,14 +282,29 @@ public class AetherionBoss extends FlyingMob implements ProceduralAnimatable, IH
         return this.getY() - y;
     }
 
+    private static final EntityDataAccessor<Float>[] ARM_HPS = new EntityDataAccessor[]{
+            ARM_0_HP, ARM_1_HP, ARM_2_HP, ARM_3_HP
+    };
+
+    public void setArmHP(int i, float hp) {
+        if (i >= 0 && i < ARM_HPS.length)
+            this.entityData.set(ARM_HPS[i], hp);
+    }
+
+    public float getArmHP(int i) {
+        if (i >= 0 && i < ARM_HPS.length)
+            return this.entityData.get(ARM_HPS[i]);
+        return 0;
+    }
 
     @Override
     protected void defineSynchedData() {
         super.defineSynchedData();
         this.entityData.define(TARGET_POS, new Vector3f(0,0,0));
-//        this.entityData.define(GROUND_POS_2, 0);
-//        this.entityData.define(GROUND_POS_3, 0);
-//        this.entityData.define(GROUND_POS_4, 0);
+        this.entityData.define(ARM_0_HP, 75f);
+        this.entityData.define(ARM_1_HP, 75f);
+        this.entityData.define(ARM_2_HP, 75f);
+        this.entityData.define(ARM_3_HP, 75f);
     }
 
     @Override
@@ -324,9 +331,53 @@ public class AetherionBoss extends FlyingMob implements ProceduralAnimatable, IH
     }
 
     @Override
+    public boolean shouldRenderAtSqrDistance(double pDistance) {
+        return true;
+    }
+
+    @Override
     public void die(DamageSource pDamageSource) {
-        InvasionData data = InvasionData.get(this.getServer().getLevel(Level.OVERWORLD));
-        data.addProgress(DEATH_VALUE);
+        if(!this.level().isClientSide) {
+            InvasionData data = InvasionData.get(this.getServer().getLevel(Level.OVERWORLD));
+            data.addProgress(DEATH_VALUE);
+        }
         super.die(pDamageSource);
+    }
+
+    @Override
+    public boolean isMultipartEntity() {
+        return true;
+    }
+
+    @Override
+    public @Nullable PartEntity<?>[] getParts() {
+        return allParts;
+    }
+
+    public void remove(RemovalReason removalReason) {
+        super.remove(removalReason);
+        if (allParts != null) {
+            for (PartEntity part : allParts) {
+                part.remove(RemovalReason.KILLED);
+            }
+        }
+    }
+
+    @Override
+    public void readAdditionalSaveData(CompoundTag tag) {
+        for (int i = 0; i < 4; i++) {
+            String key = "arm_" + i + "_hp";
+            if (tag.contains(key, Tag.TAG_FLOAT)) {
+                setArmHP(i,tag.getFloat(key));
+            }
+        }
+    }
+
+    @Override
+    public void addAdditionalSaveData(CompoundTag tag) {
+        tag.putFloat("arm_0_hp", getArmHP(0));
+        tag.putFloat("arm_1_hp", getArmHP(1));
+        tag.putFloat("arm_2_hp", getArmHP(2));
+        tag.putFloat("arm_3_hp", getArmHP(3));
     }
 }

@@ -1,6 +1,7 @@
 package net.jelly.exo_ascension.entity.invasion.aetherion;
 
 import net.jelly.exo_ascension.global.invasion.InvasionData;
+import net.jelly.exo_ascension.networking.AetherionArmMessage;
 import net.jelly.exo_ascension.networking.ModMessages;
 import net.jelly.exo_ascension.networking.MultipartEntityMessage;
 import net.jelly.exo_ascension.utility.AbstractPartEntity;
@@ -16,12 +17,14 @@ import java.util.List;
 
 public class AetherionPartEntity extends AbstractPartEntity<AetherionBoss> {
     private EntityDimensions size;
+    private int index;
 
-    public AetherionPartEntity(AetherionBoss parent, float sizeXZ, float sizeY, float length) {
+    public AetherionPartEntity(AetherionBoss parent, float sizeXZ, float sizeY, float length, int index) {
         super(parent);
         this.size = EntityDimensions.fixed(sizeXZ, sizeY);
         this.refreshDimensions();
         this.length = length;
+        this.index = index;
     }
 
     public EntityDimensions getDimensions(Pose pose) {
@@ -48,13 +51,16 @@ public class AetherionPartEntity extends AbstractPartEntity<AetherionBoss> {
 
     @Override
     public boolean hurt(DamageSource source, float amount) {
-        Entity parent = this.getParent();
+        AetherionBoss parent = this.getParent();
         if (parent != null) {
             Entity player = source.getEntity();
             if (player != null && player.level().isClientSide) {
-                ModMessages.sendToServer(new MultipartEntityMessage(parent.getId(), player.getId(), 1, amount));
+                ModMessages.sendToServer(new AetherionArmMessage(parent.getId(), player.getId(), 1, amount, this.index));
             }
-            else parent.hurt(source, amount);
+            else {
+                parent.hurtArm(this.index, amount);
+                parent.hurt(level().damageSources().generic(), 0);
+            }
         }
         return true;
     }

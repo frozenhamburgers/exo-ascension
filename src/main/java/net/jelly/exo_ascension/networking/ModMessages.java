@@ -32,6 +32,12 @@ public class ModMessages {
                 .encoder(MultipartEntityMessage::write)
                 .consumerMainThread(MultipartEntityMessage::handle)
                 .add();
+
+        net.messageBuilder(AetherionArmMessage.class, id(), NetworkDirection.PLAY_TO_SERVER)
+                .decoder(AetherionArmMessage::read)
+                .encoder(AetherionArmMessage::write)
+                .consumerMainThread(AetherionArmMessage::handle)
+                .add();
     }
 
     public static <MSG> void sendToServer(MSG message) {
