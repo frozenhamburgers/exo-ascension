@@ -31,7 +31,7 @@ public class AetherionLaserArmAnimator extends AetherionArmAnimator {
                     (ServerLevel)mob.level(),
                     spawnPos,
                     MobSpawnType.MOB_SUMMONED);
-            laser.start();
+            laser.start(mob);
         }
         System.out.println("added laser to level");
     }

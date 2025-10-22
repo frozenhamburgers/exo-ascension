@@ -137,7 +137,7 @@ public class AetherionBoss extends FlyingMob implements ProceduralAnimatable, IH
         // maintain synched target posiiton
         if(this.getTarget() != null) {
             LivingEntity target = this.getTarget();
-            this.lookAt(target, 9, 9);
+            this.lookAt(target, 2, 2);
             if (!this.level().isClientSide) this.entityData.set(TARGET_POS, target.position().toVector3f());
         }
         else if (!this.level().isClientSide) this.entityData.set(TARGET_POS, null);
