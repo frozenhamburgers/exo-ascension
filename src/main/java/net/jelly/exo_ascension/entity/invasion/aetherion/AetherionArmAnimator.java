@@ -12,6 +12,7 @@ public class AetherionArmAnimator extends FabrikAnimator {
     private boolean aiming;
     public Vec3 prevEnd; // previous FABRIK end effector BEFORE aiming, used to restore FABRIK chain
     private Vec3 prevAim; // previous aim vector before reset by FABRIK, used to interpolate aiming
+    public boolean attacking;
 
     public AetherionArmAnimator(Entity owner, AbstractPartEntity[] allParts) {
         super(owner, allParts);
@@ -107,6 +108,9 @@ public class AetherionArmAnimator extends FabrikAnimator {
 
 
     public void tickArm() {
+    }
+
+    public void beginAttack() {
     }
 }
 

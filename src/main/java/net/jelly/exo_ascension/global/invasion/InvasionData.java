@@ -32,7 +32,7 @@ import net.minecraftforge.fml.common.Mod;
 import java.util.List;
 
 public class InvasionData extends SavedData {
-    private int stage = 0; // stage -1 = invasion not active
+    private int stage = -1; // stage -1 = invasion not active
     private int progress = 0;
     protected final ServerBossEvent progressBar = new ServerBossEvent(Component.literal("Stage"),
             BossEvent.BossBarColor.BLUE, BossEvent.BossBarOverlay.PROGRESS);

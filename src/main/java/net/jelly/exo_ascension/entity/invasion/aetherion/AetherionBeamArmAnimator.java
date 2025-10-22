@@ -1,6 +1,7 @@
 package net.jelly.exo_ascension.entity.invasion.aetherion;
 
 import net.jelly.exo_ascension.entity.ModEntities;
+import net.jelly.exo_ascension.entity.invasion.aetherion.beam.AetherionBeamEntity;
 import net.jelly.exo_ascension.entity.invasion.aetherion.laser.AetherionLaserEntity;
 import net.jelly.exo_ascension.utility.AbstractPartEntity;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
@@ -9,12 +10,12 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.phys.Vec3;
 
-public class AetherionLaserArmAnimator extends AetherionArmAnimator {
+public class AetherionBeamArmAnimator extends AetherionArmAnimator {
     private int timer = 0;
     AetherionBoss mob;
-    private AetherionLaserEntity laser;
+    private AetherionBeamEntity beam;
 
-    public AetherionLaserArmAnimator(AetherionBoss owner, AbstractPartEntity[] allParts) {
+    public AetherionBeamArmAnimator(AetherionBoss owner, AbstractPartEntity[] allParts) {
         super(owner, allParts);
         mob = owner;
     }
@@ -26,20 +27,21 @@ public class AetherionLaserArmAnimator extends AetherionArmAnimator {
         Vec3 endPos = allParts[allParts.length-1].getEndPos();
         BlockPos spawnPos = new BlockPos((int) Math.floor(endPos.x), (int) endPos.y, (int) Math.floor(endPos.z));
         if(!mob.level().isClientSide) {
-            laser = ModEntities.AETHERION_LASER.get().spawn(
+            beam = ModEntities.AETHERION_BEAM.get().spawn(
                     (ServerLevel)mob.level(),
                     spawnPos,
                     MobSpawnType.MOB_SUMMONED);
-            laser.start(mob);
+            beam.start(mob);
         }
+        System.out.println("added beam to level");
     }
 
     public void tickArm() {
         AbstractPartEntity cannonPart = allParts[allParts.length-1];
         Vec3 endPos = cannonPart.getEndPos();
-        if(laser != null) {
-            laser.setPos(endPos);
-            laser.lookAt(EntityAnchorArgument.Anchor.EYES, cannonPart.position().add(cannonPart.direction.scale(cannonPart.length*2)));
+        if(beam != null) {
+            beam.lerpTo(endPos.x, endPos.y, endPos.z, beam.getXRot(), beam.getYRot(), 1, true);
+            beam.lookAt(EntityAnchorArgument.Anchor.EYES, cannonPart.position().add(cannonPart.direction.scale(cannonPart.length*2)));
         }
         if(!attacking) return;
         if(timer > AetherionLaserEntity.DURATION) attacking = false;

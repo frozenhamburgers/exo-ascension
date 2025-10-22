@@ -55,7 +55,7 @@ public class AetherionBoss extends FlyingMob implements ProceduralAnimatable, IH
         AetherionPartEntity specialArm11 = new AetherionPartEntity(this, 16f/16, 16f/16, scale*37f/16);
         AetherionPartEntity specialArm12 = new AetherionPartEntity(this, 12f/16, 12f/16, scale*37f/16);
         AetherionPartEntity specialArm13 = new AetherionPartEntity(this, scale*37f/16, scale*37f/16, scale*37f/16);
-        armAnimators[0] = new AetherionArmAnimator(this, new AetherionPartEntity[]
+        armAnimators[0] = new AetherionLaserArmAnimator(this, new AetherionPartEntity[]
                 {specialArm11, specialArm12, specialArm13});
         AetherionPartEntity laserArm11 = new AetherionPartEntity(this, 16f/16, 16f/16, scale*30f/16);
         AetherionPartEntity laserArm12 = new AetherionPartEntity(this, 12f/16, 12f/16, scale*30f/16);
@@ -66,7 +66,7 @@ public class AetherionBoss extends FlyingMob implements ProceduralAnimatable, IH
         AetherionPartEntity specialArm21 = new AetherionPartEntity(this, 16f/16, 16f/16, scale*37f/16);
         AetherionPartEntity specialArm22 = new AetherionPartEntity(this, 12f/16, 12f/16, scale*37f/16);
         AetherionPartEntity specialArm23 = new AetherionPartEntity(this, scale*37f/16, scale*37f/16, scale*37f/16);
-        armAnimators[2] = new AetherionArmAnimator(this, new AetherionPartEntity[]
+        armAnimators[2] = new AetherionLaserArmAnimator(this, new AetherionPartEntity[]
                 {specialArm21, specialArm22, specialArm23});
         AetherionPartEntity laserArm21 = new AetherionPartEntity(this, 16f/16, 16f/16, scale*30f/16);
         AetherionPartEntity laserArm22 = new AetherionPartEntity(this, 12f/16, 12f/16, scale*30f/16);
@@ -156,8 +156,9 @@ public class AetherionBoss extends FlyingMob implements ProceduralAnimatable, IH
 
                 boolean isSpecial = (i == 0 || i == 2); // indices 0, 2 = short lower special arms
                 // laser attack
-                if(!isSpecial) {
-                    ((AetherionLaserArmAnimator)arm).beginAttack();
+                arm.beginAttack();
+
+                if(isSpecial) {
                 }
             }
             else {
