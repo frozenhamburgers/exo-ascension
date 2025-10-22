@@ -2,7 +2,6 @@ package net.jelly.exo_ascension.entity.invasion.aetherion;
 
 import net.jelly.exo_ascension.entity.goals.IHoverEntity;
 import net.jelly.exo_ascension.entity.goals.aetherion.AetherionMoveTowardTargetGoal;
-import net.jelly.exo_ascension.entity.goals.spider.SpiderMoveTowardTargetGoal;
 import net.jelly.exo_ascension.entity.invasion.drone.DroneEntity;
 import net.jelly.exo_ascension.global.invasion.InvasionData;
 import net.jelly.exo_ascension.utility.AbstractPartEntity;
@@ -16,14 +15,14 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.FlyingMob;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
+import net.minecraft.world.entity.ai.control.BodyRotationControl;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.entity.PartEntity;
 import org.jetbrains.annotations.Nullable;
@@ -62,7 +61,7 @@ public class AetherionBoss extends FlyingMob implements ProceduralAnimatable, IH
         AetherionPartEntity laserArm12 = new AetherionPartEntity(this, 12f/16, 12f/16, scale*30f/16);
         AetherionPartEntity laserArm13 = new AetherionPartEntity(this, 12f/16, 12f/16, scale*37f/16);
         AetherionPartEntity laserArm14 = new AetherionPartEntity(this, scale*37f/16, scale*37f/16, scale*37f/16);
-        armAnimators[1] = new AetherionArmAnimator(this, new AetherionPartEntity[]
+        armAnimators[1] = new AetherionLaserArmAnimator(this, new AetherionPartEntity[]
                 {laserArm11, laserArm12, laserArm13, laserArm14});
         AetherionPartEntity specialArm21 = new AetherionPartEntity(this, 16f/16, 16f/16, scale*37f/16);
         AetherionPartEntity specialArm22 = new AetherionPartEntity(this, 12f/16, 12f/16, scale*37f/16);
@@ -73,7 +72,7 @@ public class AetherionBoss extends FlyingMob implements ProceduralAnimatable, IH
         AetherionPartEntity laserArm22 = new AetherionPartEntity(this, 12f/16, 12f/16, scale*30f/16);
         AetherionPartEntity laserArm23 = new AetherionPartEntity(this, 12f/16, 12f/16, scale*37f/16);
         AetherionPartEntity laserArm24 = new AetherionPartEntity(this, scale*37f/16, scale*37f/16, scale*37f/16);
-        armAnimators[3] = new AetherionArmAnimator(this, new AetherionPartEntity[]
+        armAnimators[3] = new AetherionLaserArmAnimator(this, new AetherionPartEntity[]
                 {laserArm21, laserArm22, laserArm23, laserArm24});
 
         allParts = new AetherionPartEntity[]
@@ -87,7 +86,7 @@ public class AetherionBoss extends FlyingMob implements ProceduralAnimatable, IH
 
         // goals
         this.goalSelector.addGoal(0, new NearestAttackableTargetGoal<>(this, Player.class, false));
-        this.goalSelector.addGoal(2, new AetherionMoveTowardTargetGoal(this, 2, 0.15f, 0.035f));
+        this.goalSelector.addGoal(2, new AetherionMoveTowardTargetGoal(this, 20, 0.15f, 0.035f));
     }
 
     public static AttributeSupplier.Builder createAttributes() {
@@ -146,18 +145,29 @@ public class AetherionBoss extends FlyingMob implements ProceduralAnimatable, IH
         // maintain
         tickArmControl();
 
-        // common side logic: manual aiming of arms
-        if(entityData.get(TARGET_POS) != null) { // if target exists
-            Vec3 targetPos = new Vec3(entityData.get(TARGET_POS));
+        // common side logic for attacks
+        for (int i = 0; i < 4; i++) {
+            AetherionArmAnimator arm = armAnimators[i];
 
-            for (AetherionArmAnimator arm : armAnimators) {
-                if(!arm.shooting) continue;
-                arm.aim(targetPos);
+            if(entityData.get(TARGET_POS) != null) { // if target exists
+                Vec3 targetPos = new Vec3(entityData.get(TARGET_POS));
+                arm.setAiming(true);
+                arm.aimAt(targetPos, 0.5f, 0.5f);
+
+                boolean isSpecial = (i == 0 || i == 2); // indices 0, 2 = short lower special arms
+                // laser attack
+                if(!isSpecial) {
+                    ((AetherionLaserArmAnimator)arm).beginAttack();
+                }
             }
+            else {
+                arm.setAiming(false);
+                if(arm.prevEnd != null) arm.aimAt(arm.prevEnd, 2, 2); // gradually reset to rest position
+            }
+
+            arm.tickArm();
         }
-        else {
-            for (AetherionArmAnimator arm : armAnimators) arm.setShooting(false);
-        }
+
 
         // finalize all arms
         for (AetherionArmAnimator arm : armAnimators) arm.finalize();
@@ -174,7 +184,7 @@ public class AetherionBoss extends FlyingMob implements ProceduralAnimatable, IH
             AetherionArmAnimator arm = armAnimators[i];
 
             // --- IF LIMB IS SHOOTING, MANUALLY RESET END EFFECTOR TO PREVIOUS END POS BEFORE FABRIK
-            if(arm.shooting) {
+            if(arm.getPrevEnd() != null ) {
                 AbstractPartEntity[] parts = arm.getParts();
                 Vec3 preCannonArmPos = parts[parts.length - 2].getEndPos();
                 Vec3 prevDir = arm.getPrevEnd().subtract(preCannonArmPos).normalize();
@@ -297,6 +307,19 @@ public class AetherionBoss extends FlyingMob implements ProceduralAnimatable, IH
     @Override
     public boolean fireImmune() {
         return true;
+    }
+    class AetherionBodyRotationControl extends BodyRotationControl {
+        public AetherionBodyRotationControl(Mob pMob) {
+            super(pMob);
+        }
+        public void clientTick() {
+            AetherionBoss.this.yHeadRot = AetherionBoss.this.yBodyRot;
+            AetherionBoss.this.yBodyRot = AetherionBoss.this.getYRot();
+        }
+    }
+
+    protected BodyRotationControl createBodyControl() {
+        return new AetherionBodyRotationControl(this);
     }
 
     @Override

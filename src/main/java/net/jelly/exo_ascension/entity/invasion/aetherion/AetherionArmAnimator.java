@@ -2,12 +2,16 @@ package net.jelly.exo_ascension.entity.invasion.aetherion;
 
 import net.jelly.exo_ascension.utility.AbstractPartEntity;
 import net.jelly.exo_ascension.utility.FabrikAnimator;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 
+/** Implements IK relevant functionalities to FabrikAnimator
+ * Classes that extend this will deal more with other functionalities e.g. attacks **/
 public class AetherionArmAnimator extends FabrikAnimator {
-    public boolean shooting;
-    public Vec3 prevEnd;
+    private boolean aiming;
+    public Vec3 prevEnd; // previous FABRIK end effector BEFORE aiming, used to restore FABRIK chain
+    private Vec3 prevAim; // previous aim vector before reset by FABRIK, used to interpolate aiming
 
     public AetherionArmAnimator(Entity owner, AbstractPartEntity[] allParts) {
         super(owner, allParts);
@@ -17,8 +21,12 @@ public class AetherionArmAnimator extends FabrikAnimator {
         return allParts;
     }
 
-    public void setShooting(boolean b) {
-        shooting = b;
+    public void setAiming(boolean b) {
+        aiming = b;
+    }
+
+    public boolean isAiming() {
+        return aiming;
     }
 
     public void setPrevEnd(Vec3 v) {
@@ -40,17 +48,65 @@ public class AetherionArmAnimator extends FabrikAnimator {
     }
 
     // manual aim last segment
-    public void aim(Vec3 target) {
+    // imports assumed: import net.minecraft.util.Mth; and Vec3
+
+    public void aimAt(Vec3 target, float maxYawChangeDeg, float maxPitchChangeDeg) {
         AbstractPartEntity[] parts = this.getParts();
-        this.setShooting(true);
+        if (parts == null || parts.length < 2) return;
+
         this.setPrevEnd(this.chainEndPos());
 
-        Vec3 preCannonArmPos = parts[parts.length - 2].getEndPos();
-        Vec3 targetDir = target.subtract(preCannonArmPos).normalize();
-        parts[parts.length - 1].setPartDirection(targetDir);
-        parts[parts.length - 1].setRootPos(preCannonArmPos);
+        Vec3 rootPos = parts[parts.length - 2].getEndPos();
+        AbstractPartEntity cannonPart = parts[parts.length - 1];
+
+        Vec3 toTarget = target.subtract(rootPos);
+        double dist = toTarget.length();
+        if (dist < 1e-6) return;
+
+        Vec3 currentDir;
+        if(prevAim == null) currentDir = cannonPart.direction.normalize();
+        else currentDir = prevAim.normalize();
+
+        float currYawDeg = (float) Math.toDegrees(Math.atan2(-currentDir.x, currentDir.z)); // flipped X, matches Minecraft
+        float currPitchDeg = (float) Math.toDegrees(-Math.asin(currentDir.y));
+
+        Vec3 td = toTarget.normalize();
+        float targetYawDeg = (float) Math.toDegrees(Math.atan2(-td.x, td.z));  // flipped X again
+        float targetPitchDeg = (float) Math.toDegrees(-Math.asin(td.y));
+
+        float deltaYaw = Mth.wrapDegrees(targetYawDeg - currYawDeg);
+        float deltaPitch = Mth.wrapDegrees(targetPitchDeg - currPitchDeg);
+
+        float appliedYaw = clampSigned(deltaYaw, maxYawChangeDeg);
+        float appliedPitch = clampSigned(deltaPitch, maxPitchChangeDeg);
+
+        float currYaw = (float)Math.toDegrees(Math.atan2(-currentDir.x, currentDir.z));
+        float currPitch = (float)Math.toDegrees(-Math.asin(currentDir.y));
+
+        double yawRad = Math.toRadians(currYaw + appliedYaw);
+        double pitchRad = Math.toRadians(currPitch + appliedPitch);
+
+        Vec3 smoothedDir = new Vec3(
+                -Math.sin(yawRad) * Math.cos(pitchRad),
+                -Math.sin(pitchRad),
+                Math.cos(yawRad) * Math.cos(pitchRad)
+        );
+
+        cannonPart.setPartDirection(smoothedDir);
+        cannonPart.setRootPos(rootPos);
+        prevAim = smoothedDir;
+    }
+
+    private static float clampSigned(float value, float maxAbs) {
+        float abs = Math.abs(value);
+        if (abs <= maxAbs) return value;
+        return Math.copySign(maxAbs, value);
     }
 
 
 
+
+    public void tickArm() {
+    }
 }
+

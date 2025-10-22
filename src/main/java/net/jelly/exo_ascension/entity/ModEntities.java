@@ -10,6 +10,8 @@ import net.jelly.exo_ascension.entity.examples.worm.WormRenderer;
 import net.jelly.exo_ascension.entity.invasion.aetherion.AetherionBoss;
 import net.jelly.exo_ascension.entity.invasion.aetherion.AetherionModel;
 import net.jelly.exo_ascension.entity.invasion.aetherion.AetherionRenderer;
+import net.jelly.exo_ascension.entity.invasion.aetherion.laser.AetherionLaserEntity;
+import net.jelly.exo_ascension.entity.invasion.aetherion.laser.AetherionLaserRenderer;
 import net.jelly.exo_ascension.entity.invasion.gorgon.GorgonEntity;
 import net.jelly.exo_ascension.entity.invasion.gorgon.GorgonModel;
 import net.jelly.exo_ascension.entity.invasion.gorgon.GorgonRenderer;
@@ -91,6 +93,12 @@ public class ModEntities {
                     .build("aetherion")
     );
 
+    public static final RegistryObject<EntityType<AetherionLaserEntity>> AETHERION_LASER = ENTITY_TYPES.register("aetherion_laser", () ->
+            EntityType.Builder.of(AetherionLaserEntity::new, MobCategory.MISC)
+                    .sized(0.5f, 0.5f)
+                    .build("aetherion_laser")
+    );
+
     public static void register(IEventBus eventBus) {
         ENTITY_TYPES.register(eventBus);
     }
@@ -111,6 +119,7 @@ public class ModEntities {
             EntityRenderers.register(ModEntities.SPIDER.get(), SpiderRenderer::new);
             EntityRenderers.register(ModEntities.GORGON.get(), GorgonRenderer::new);
             EntityRenderers.register(ModEntities.AETHERION.get(), AetherionRenderer::new);
+            EntityRenderers.register(ModEntities.AETHERION_LASER.get(), AetherionLaserRenderer::new);
         }
         @SubscribeEvent
         public static void registerLayer(EntityRenderersEvent.RegisterLayerDefinitions event) {
