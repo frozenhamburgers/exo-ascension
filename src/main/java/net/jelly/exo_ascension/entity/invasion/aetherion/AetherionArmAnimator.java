@@ -13,6 +13,8 @@ public class AetherionArmAnimator extends FabrikAnimator {
     public Vec3 prevEnd; // previous FABRIK end effector BEFORE aiming, used to restore FABRIK chain
     private Vec3 prevAim; // previous aim vector before reset by FABRIK, used to interpolate aiming
     public boolean attacking;
+    public boolean destroyed = false;
+    public Vec3 destroyedFallVelocity = Vec3.ZERO;
 
     public AetherionArmAnimator(Entity owner, AbstractPartEntity[] allParts) {
         super(owner, allParts);
@@ -37,6 +39,30 @@ public class AetherionArmAnimator extends FabrikAnimator {
     public Vec3 getPrevEnd() {
         return prevEnd;
     }
+
+    public void setDestroyed() {
+        destroyed = true;
+        aiming = false;
+        this.setFollowRootOnly(true);
+    }
+
+    public void reviveArm(Vec3 revivePos) {
+        this.destroyed = false;
+        this.destroyedFallVelocity = Vec3.ZERO; // reset fall velocity
+        this.prevEnd = null; // clear any previous end override used when shooting
+        this.setFollowRootOnly(false);
+
+        AbstractPartEntity[] parts = this.getParts();
+        for (int i = 0; i < parts.length; i++) {
+            parts[i].setRootPos(revivePos);
+            parts[i].setPartDirection(new Vec3(0, 0, 1));
+        }
+        this.setAiming(false);
+
+        this.setFabrikTarget(revivePos);
+        this.primeMultipart();
+    }
+
 
     @Override
     public void tickMultipart() {

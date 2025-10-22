@@ -39,14 +39,21 @@ public class AetherionBoss extends FlyingMob implements ProceduralAnimatable, IH
     private static final EntityDataAccessor<Vector3f> TARGET_POS = SynchedEntityData.defineId(AetherionBoss.class, EntityDataSerializers.VECTOR3);
     private static final int ATTACK_COOLDOWN = 200;
     private int nextAttack = ATTACK_COOLDOWN;
+    private static final float ARM_MAX_HP = 75f;
     private static final EntityDataAccessor<Float> ARM_0_HP = SynchedEntityData.defineId(AetherionBoss.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Float> ARM_1_HP = SynchedEntityData.defineId(AetherionBoss.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Float> ARM_2_HP = SynchedEntityData.defineId(AetherionBoss.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Float> ARM_3_HP = SynchedEntityData.defineId(AetherionBoss.class, EntityDataSerializers.FLOAT);
+    private boolean downed = false;
+    private int downedTimer = 0;
+    private static final int DOWNED_TIME = 200;
+    private int downedDamage = 0;
+    private static final int DOWNED_MAX_DAMAGE = 50;
 
     public AetherionBoss(EntityType entityType, Level level) {
         super(entityType, level);
         float scale = AetherionRenderer.MODEL_SCALE;
+        this.setInvulnerable(true);
 
         AetherionPartEntity specialArm11 = new AetherionPartEntity(this, 16f/16, 16f/16, scale*37f/16, 0);
         AetherionPartEntity specialArm12 = new AetherionPartEntity(this, 12f/16, 12f/16, scale*37f/16, 0);
@@ -109,11 +116,14 @@ public class AetherionBoss extends FlyingMob implements ProceduralAnimatable, IH
         super.tick();
 
         // Apply gentle hover damping
-        if (this.getGroundDistance() > 20) this.addDeltaMovement(new Vec3(0, -0.1f, 0));
-        if (this.getGroundDistance() < 10) this.addDeltaMovement(new Vec3(0, 0.05f, 0));
+        if(!downed) {
+            if (this.getGroundDistance() > 20) this.addDeltaMovement(new Vec3(0, -0.1f, 0));
+            if (this.getGroundDistance() < 10) this.addDeltaMovement(new Vec3(0, 0.05f, 0));
+        }
+        else this.addDeltaMovement(new Vec3(0, -0.01f, 0));
 
         // maintain synched target posiiton
-        if(this.getTarget() != null) {
+        if(this.getTarget() != null && !downed) {
             LivingEntity target = this.getTarget();
             this.lookAt(target, 2, 2);
             if (!this.level().isClientSide) this.entityData.set(TARGET_POS, target.position().toVector3f());
@@ -126,22 +136,13 @@ public class AetherionBoss extends FlyingMob implements ProceduralAnimatable, IH
         // common side logic for attacks
         for (int i = 0; i < 4; i++) {
             AetherionArmAnimator arm = armAnimators[i];
-            if(getArmHP(i) <= 0) {
-                arm.setAiming(false);
-                continue;
-            }
+            if(getArmHP(i) <= 0) continue;
 
             if(entityData.get(TARGET_POS) != null) { // if target exists
                 Vec3 targetPos = new Vec3(entityData.get(TARGET_POS));
                 arm.setAiming(true);
                 arm.aimAt(targetPos, 0.5f, 0.5f);
-
-                boolean isSpecial = (i == 0 || i == 2); // indices 0, 2 = short lower special arms
-                // laser attack
                 arm.beginAttack();
-
-                if(isSpecial) {
-                }
             }
             else {
                 arm.setAiming(false);
@@ -151,9 +152,28 @@ public class AetherionBoss extends FlyingMob implements ProceduralAnimatable, IH
             arm.tickArm();
         }
 
-
         // finalize all arms
         for (AetherionArmAnimator arm : armAnimators) arm.finalize();
+
+        // if all arms destroyed, body is downed
+        boolean allArmsDown = true;
+        for (int i = 0; i < 4; i++) {
+            if (getArmHP(i) > 0) {
+                allArmsDown = false;
+                break;
+            }
+        }
+        if (allArmsDown && !downed) {
+            this.setDowned();
+        }
+
+        // if downed
+        if(this.downed) {
+            downedTimer++;
+            if(downedTimer >= DOWNED_TIME) {
+                this.setNotDowned();
+            }
+        }
 
     }
 
@@ -168,8 +188,9 @@ public class AetherionBoss extends FlyingMob implements ProceduralAnimatable, IH
 
             // if arm is destroyed
             if(getArmHP(i) <= 0) {
-                arm.setFollowRootOnly(true);
-                if(arm.chainRoot().y > -150) arm.setRoot(arm.chainRoot().subtract(new Vec3(0,0.25, 0)));
+                arm.setDestroyed();
+                arm.destroyedFallVelocity = arm.destroyedFallVelocity.add(0, -0.01, 0);
+                if(arm.chainRoot().y > -150) arm.setRoot(arm.chainRoot().add(arm.destroyedFallVelocity));
                 continue;
             }
 
@@ -251,21 +272,44 @@ public class AetherionBoss extends FlyingMob implements ProceduralAnimatable, IH
                 arm.setFabrikTarget(chainEnd);
             }
 
+
         }
 
         // Apply part transforms
         tickMultipart();
     }
 
+    private void setDowned() {
+        downed = true;
+        downedTimer = 0;
+        downedDamage = 0;
+        this.setInvulnerable(false);
+    }
+
+    private void setNotDowned() {
+        this.setInvulnerable(true);
+        downed = false;
+        for (int i = 0; i < 4; i++) {
+            setArmHP(i, ARM_MAX_HP);
+        }
+        for(AetherionArmAnimator arm : armAnimators) arm.reviveArm(this.position().add(new Vec3(0, this.getEyeHeight(), 0)));
+        downedTimer = 0;
+        downedDamage = 0;
+    }
+
     public void hurtArm(int index, float amount) {
-        System.out.println("arm " + index + ": ouch!");
         setArmHP(index, Math.max(getArmHP(index)-amount, 0));
-        System.out.println(getArmHP(index));
     }
 
 
     @Override
     public boolean hurt(DamageSource pSource, float pAmount) {
+        if(pAmount <= 0) { // register hits that do 0 damage
+            this.setInvulnerable(false);
+            boolean ret = super.hurt(pSource, pAmount);
+            this.setInvulnerable(true);
+            return ret;
+        }
         return super.hurt(pSource, pAmount);
     }
 
@@ -301,10 +345,10 @@ public class AetherionBoss extends FlyingMob implements ProceduralAnimatable, IH
     protected void defineSynchedData() {
         super.defineSynchedData();
         this.entityData.define(TARGET_POS, new Vector3f(0,0,0));
-        this.entityData.define(ARM_0_HP, 75f);
-        this.entityData.define(ARM_1_HP, 75f);
-        this.entityData.define(ARM_2_HP, 75f);
-        this.entityData.define(ARM_3_HP, 75f);
+        this.entityData.define(ARM_0_HP, ARM_MAX_HP);
+        this.entityData.define(ARM_1_HP, ARM_MAX_HP);
+        this.entityData.define(ARM_2_HP, ARM_MAX_HP);
+        this.entityData.define(ARM_3_HP, ARM_MAX_HP);
     }
 
     @Override
@@ -371,6 +415,7 @@ public class AetherionBoss extends FlyingMob implements ProceduralAnimatable, IH
                 setArmHP(i,tag.getFloat(key));
             }
         }
+        if (tag.contains("downed", Tag.TAG_BYTE)) downed = tag.getBoolean("downed");
     }
 
     @Override
@@ -379,5 +424,6 @@ public class AetherionBoss extends FlyingMob implements ProceduralAnimatable, IH
         tag.putFloat("arm_1_hp", getArmHP(1));
         tag.putFloat("arm_2_hp", getArmHP(2));
         tag.putFloat("arm_3_hp", getArmHP(3));
+        tag.putBoolean("downed", this.downed);
     }
 }
